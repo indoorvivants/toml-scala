@@ -1,9 +1,14 @@
 # toml-scala
-[![Build Status](https://travis-ci.org/sparsetech/toml-scala.svg)](https://travis-ci.org/sparsetech/toml-scala)
-[![Build Status](http://ci.sparse.tech/api/badges/sparsetech/toml-scala/status.svg)](http://ci.sparse.tech/sparsetech/toml-scala)
-[![Maven Central](https://img.shields.io/maven-central/v/tech.sparse/toml-scala_2.12.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22tech.sparse%22%20AND%20a%3A%22toml-scala_2.12%22)
+
+[![toml-scala Scala version support](https://index.scala-lang.org/indoorvivants/toml-scala/toml-scala/latest.svg)](https://index.scala-lang.org/indoorvivants/toml-scala/toml-scala)
 
 toml-scala is a feature-complete implementation of [TOML](https://github.com/toml-lang/toml) for the Scala platform. It can parse TOML content into an AST or map it onto `case class` hierarchies. Furthermore, it can generate TOML back from an AST.
+
+---
+
+This project is an updated and maintained fork of the [original sparsetech/toml-scala](https://github.com/sparsetech/toml-scala/pull/24#issuecomment-2425882246)
+
+---
 
 ## Features
 - Standard-compliant
@@ -16,19 +21,19 @@ toml-scala is a feature-complete implementation of [TOML](https://github.com/tom
 - Property-based unit tests
 
 ## Compatibility
-| Back end   | Scala versions    | Date support | Tests         |
-|:-----------|:------------------|:-------------|:--------------|
-| JVM        | 2.11, 2.12, 2.13  | Yes          | Yes           |
-| JavaScript | 2.11, 2.12, 2.13  | No (1)       | Yes           |
-| LLVM       | 2.11              | No (1)       | Partially (2) |
+| Back end     | Scala versions  | Date support | Tests         |
+|:-------------|:----------------|:-------------|:--------------|
+| JVM          | 2.12, 2.13, 3  | Yes          | Yes           |
+| Scala.js      | 2.12, 2.13, 3  | Yes (1)      | Yes           |
+| Scala Native | 2.12, 2.13, 3  | Yes (1)      | Yes |
 
-* (1) JavaScript and LLVM have insufficient support for the JDK8's `java.time`. Parsing of dates and times is presently only possible under the JVM.
-* (2) Presently, Scala Native does not support running ScalaCheck test suites.
+- (1) On Scala.js and Scala Native we introduce an _optional_ dependency on https://index.scala-lang.org/cquiroz/scala-java-time. If your code doesn't use datetime codecs, then you don't need to add it to your build.
+      Otherwise you need to explicitly depend on it, otherwise you will get linking errors
 
 ### Dependencies
 ```scala
-libraryDependencies += "tech.sparse" %%  "toml-scala" % "<version>"  // JVM
-libraryDependencies += "tech.sparse" %%% "toml-scala" % "<version>"  // JavaScript, LLVM
+libraryDependencies += "com.indoorvivants" %%  "toml-scala" % "<version>"  // JVM
+libraryDependencies += "com.indoorvivants" %%% "toml-scala" % "<version>"  // Scala.js, Scala Native
 ```
 
 ## Examples
@@ -38,10 +43,13 @@ toml.Toml.parse("a = 1")  // Right(Tbl(Map(a -> Num(1))))
 ```
 
 ### Codec derivation
+
+**Currently only supported on Scala 2**
+
 The following import is needed:
 
 ```scala
-import toml.Codecs._
+import toml.derivation.auto._
 ```
 
 #### Tables
@@ -148,7 +156,7 @@ toml.Toml.parse("""key = {
 ```
 
 ## Links
-* [ScalaDoc](https://www.javadoc.io/doc/tech.sparse/toml-scala_2.12/)
+* [ScalaDoc](https://www.javadoc.io/doc/com.indoorvivants/toml-scala_2.13/)
 
 ## Licence
 toml-scala is licensed under the terms of the Mozilla Public Licence v2.0.
