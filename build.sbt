@@ -92,3 +92,17 @@ lazy val superMatrix = Seq((Compile / unmanagedSourceDirectories) ++= {
       (Compile / sourceDirectory).value / suffixes
     }
 })
+
+
+concurrentRestrictions in Global ++= {
+  if(sys.env.contains("CI")) 
+    Seq(
+      Tags.limit(Tags.Test, 1),
+      // By default dependencies of test can be run in parallel, it includeds Scala Native/Scala.js linkers
+      // Limit them to lower memory usage, especially when targetting LLVM
+      Tags.limit(NativeTags.Link, 1),
+      Tags.limit(ScalaJSTags.Link, 1)
+    )
+  else Seq.empty
+}
+
