@@ -32,8 +32,8 @@ This project is an updated and maintained fork of the [original sparsetech/toml-
 
 ### Dependencies
 ```scala
-libraryDependencies += "com.indoorvivants" %%  "toml-scala" % "<version>"  // JVM
-libraryDependencies += "com.indoorvivants" %%% "toml-scala" % "<version>"  // Scala.js, Scala Native
+libraryDependencies += "com.indoorvivants" %%  "toml" % "<version>"  // JVM
+libraryDependencies += "com.indoorvivants" %%% "toml" % "<version>"  // Scala.js, Scala Native
 ```
 
 ## Examples
