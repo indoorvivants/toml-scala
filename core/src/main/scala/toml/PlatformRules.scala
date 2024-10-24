@@ -35,8 +35,13 @@ private[toml] trait PlatformRules { this: Rules =>
   def offsetDateTime[$: P]: P[Value.OffsetDateTime] = P(
     localDateTime ~ ("Z" | (("-" | "+") ~ digit.rep(2) ~ ":" ~ digit.rep(2))).!
   ).map { case (dateTime, offset) =>
+    // https://github.com/cquiroz/scala-java-time/issues/518
+    val zone = offset match {
+      case "Z" => ZoneOffset.UTC
+      case other => ZoneOffset.of(other)
+    }
     Value.OffsetDateTime(
-      OffsetDateTime.of(dateTime.value, ZoneOffset.of(offset)))
+      OffsetDateTime.of(dateTime.value, zone))
   }
 
   def date[$: P] = P(offsetDateTime | localDateTime | localDate | localTime)
