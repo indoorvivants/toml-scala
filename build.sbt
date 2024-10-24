@@ -1,6 +1,3 @@
-// shadow sbt-scalajs' crossProject and CrossType from Scala.js 0.6.x
-import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
-
 val Scala2_12  = "2.12.19"
 val Scala2_13  = "2.13.14"
 val Scala3     = "3.3.4"
@@ -13,31 +10,33 @@ val AllScalaVersions = Seq(Scala2_12, Scala2_13, Scala3)
 
 val ScalaTestScalaCheck  = s"$ScalaTest.0"
 
-val SharedSettings = Seq(
-  name         := "toml-scala",
-  organization := "com.indoorvivants",
 
-  // scalaVersion       := Scala2_13,
-  // crossScalaVersions := Seq(Scala3, Scala2_13, Scala2_12),
-
-  pomExtra :=
-    <url>https://github.com/sparsetech/toml-scala</url>
-    <licenses>
-      <license>
-        <name>MPL-2.0 License</name>
-        <url>https://opensource.org/licenses/MPL-2.0</url>
-      </license>
-    </licenses>
-    <scm>
-      <url>git@github.com:indoorvivants/toml-scala.git</url>
-    </scm>
-    <developers>
-      <developer>
-        <id>tindzk</id>
-        <name>Tim Nieradzik</name>
-        <url>http://github.com/tindzk</url>
-      </developer>
-    </developers>
+inThisBuild(
+  List(
+    organization               := "com.indoorvivants",
+    organizationName           := "Anton Sviridov",
+    homepage := Some(
+      url("https://github.com/indoorvivants/toml-scala")
+    ),
+    startYear := Some(2022),
+    licenses := List(
+      "MPL-2.0" -> url("https://opensource.org/licenses/MPL-2.0")
+    ),
+    developers := List(
+      Developer(
+        "tindzk",
+        "Tim Nieradzik",
+        "",
+        url("http://github.com/tindzk")
+      ),
+      Developer(
+        "keynmol",
+        "Anton Sviridov",
+        "keynmol@gmail.com",
+        url("https://blog.indoorvivants.com")
+      )
+    )
+  )
 )
 
 lazy val root = project.in(file("."))
@@ -51,7 +50,6 @@ lazy val toml =
     .jsPlatform(AllScalaVersions)
     .nativePlatform(AllScalaVersions)
     .in(file("core"))
-    .settings(SharedSettings)
     .settings(superMatrix)
     .settings(
       libraryDependencies ++= Seq(
