@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: ["*"]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   JAVA_OPTS: "-Xmx4G"
 
@@ -32,21 +36,6 @@ jobs:
 
       - name: Test publishing
         run: sbt --client publishLocal
-
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin' 
-          java-version: '8'
-          cache: 'sbt'
-
-      - name: Publish ${{ github.ref }}
-        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || (github.ref == 'refs/heads/main'))
-        run: sbt ci-release
-        env:
-          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-          PGP_SECRET: ${{ secrets.PGP_SECRET }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
 
   publish:
     needs: [build]
