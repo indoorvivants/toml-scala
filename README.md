@@ -10,6 +10,27 @@ This project is an updated and maintained fork of the [original sparsetech/toml-
 
 ---
 
+<!--toc:start-->
+- [toml-scala](#toml-scala)
+  - [Features](#features)
+  - [Compatibility](#compatibility)
+    - [Dependencies](#dependencies)
+  - [Examples](#examples)
+    - [AST parsing](#ast-parsing)
+    - [Codec derivation (Scala 2 only)](#codec-derivation-scala-2-only)
+      - [Tables](#tables)
+      - [Table lists](#table-lists)
+      - [Optional values](#optional-values)
+      - [Define custom codecs](#define-custom-codecs)
+      - [Generate TOML](#generate-toml)
+      - [Language Extensions](#language-extensions)
+  - [Links](#links)
+  - [Licence](#licence)
+  - [Credits](#credits)
+  - [Contributors](#contributors)
+<!--toc:end-->
+
+
 ## Features
 - Standard-compliant
 - AST parsing
@@ -23,12 +44,11 @@ This project is an updated and maintained fork of the [original sparsetech/toml-
 ## Compatibility
 | Back end     | Scala versions  | Date support | Tests         |
 |:-------------|:----------------|:-------------|:--------------|
-| JVM          | 2.12, 2.13, 3  | Yes          | Yes           |
-| Scala.js      | 2.12, 2.13, 3  | Yes (1)      | Yes           |
-| Scala Native | 2.12, 2.13, 3  | Yes (1)      | Yes |
+| JVM          | 2.12, 2.13, 3   | Yes          | Yes           |
+| Scala.js     | 2.12, 2.13, 3   | Yes (1)      | Yes           |
+| Scala Native | 2.12, 2.13, 3   | Yes (1)      | Yes           |
 
-- (1) On Scala.js and Scala Native we introduce an _optional_ dependency on https://index.scala-lang.org/cquiroz/scala-java-time. If your code doesn't use datetime codecs, then you don't need to add it to your build.
-      Otherwise you need to explicitly depend on it, otherwise you will get linking errors
+- (1) On Scala.js and Scala Native we introduce dependency on https://index.scala-lang.org/cquiroz/scala-java-time to be able to parse date time values. At the moment there is no way to opt out of that dependency.
 
 ### Dependencies
 ```scala
@@ -39,10 +59,24 @@ libraryDependencies += "com.indoorvivants" %%% "toml" % "<version>"  // Scala.js
 ## Examples
 ### AST parsing
 ```scala
-toml.Toml.parse("a = 1")  // Right(Tbl(Map(a -> Num(1))))
+
+val table =
+  """
+    |a = 1
+    |[table]
+    |b = 2
+  """.stripMargin
+
+toml.Toml.parse(table) 
+
+// Right(
+//  value = Tbl(
+//    values = Map("a" -> Num(value = 1L), "table" -> Tbl(values = Map("b" -> Num(value = 2L))))
+//  )
+// ) 
 ```
 
-### Codec derivation
+### Codec derivation (Scala 2 only)
 
 **Currently only supported on Scala 2**
 
