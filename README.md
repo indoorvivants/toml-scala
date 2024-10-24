@@ -1,6 +1,6 @@
 # toml-scala
 
-[![toml-scala Scala version support](https://index.scala-lang.org/indoorvivants/toml-scala/toml-scala/latest.svg)](https://index.scala-lang.org/indoorvivants/toml-scala/toml-scala)
+[![toml Scala version support](https://index.scala-lang.org/indoorvivants/toml-scala/toml/latest.svg)](https://index.scala-lang.org/indoorvivants/toml-scala/toml)
 
 toml-scala is a feature-complete implementation of [TOML](https://github.com/toml-lang/toml) for the Scala platform. It can parse TOML content into an AST or map it onto `case class` hierarchies. Furthermore, it can generate TOML back from an AST.
 
