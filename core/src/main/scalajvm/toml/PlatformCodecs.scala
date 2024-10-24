@@ -2,7 +2,7 @@ package toml
 
 import java.time.{LocalDateTime, LocalTime, LocalDate, OffsetDateTime}
 
-trait PlatformCodecs {
+private[toml] trait PlatformCodecs {
   implicit val localDateCodec: Codec[LocalDate] = Codec {
     case (Value.Date(value), _, _) => Right(value)
     case (value            , _, _) =>

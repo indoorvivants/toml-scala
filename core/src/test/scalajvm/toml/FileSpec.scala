@@ -11,8 +11,9 @@ class FileSpec extends AnyFunSuite with Matchers {
   import TestHelpers._
 
   test("Parse multi-line strings") {
+    println(System.getProperty("user.dir"))
     val toml =
-      io.Source.fromFile(new File("shared/src/test/toml/strings.toml"))
+      io.Source.fromFile(new File("src/test/toml/strings.toml"))
         .mkString
     val nodes = testSuccess(toml).nodes
     assert(nodes(0) == Node.Pair("str1", Value.Str("The quick brown fox jumps over the lazy dog.")))
@@ -22,7 +23,7 @@ class FileSpec extends AnyFunSuite with Matchers {
 
   test("Parse the hard TOML example") {
     val toml =
-      io.Source.fromFile(new File("shared/src/test/toml/hard_example.toml"))
+      io.Source.fromFile(new File("src/test/toml/hard_example.toml"))
         .mkString
     testSuccess(toml)
   }
