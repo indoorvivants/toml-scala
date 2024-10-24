@@ -67,11 +67,9 @@ lazy val toml =
       libraryDependencies ++= {
         if(virtualAxes.value.contains(VirtualAxis.jvm)) Seq.empty else 
         Seq(
-          "io.github.cquiroz" %%% "scala-java-time" % ScalaJavaTime % Optional,
-          "io.github.cquiroz" %%% "scala-java-time" % ScalaJavaTime % Test,
+          "io.github.cquiroz" %%% "scala-java-time" % ScalaJavaTime,
         )
       }
-
     )
 
 
