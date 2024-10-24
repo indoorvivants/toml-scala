@@ -1,9 +1,33 @@
-package toml
+package toml.derivation
+
+import toml._
 
 import shapeless._
 import shapeless.labelled._
 
 import scala.annotation.implicitNotFound
+
+object auto extends LowPriorityCodecs with PlatformCodecs {
+  implicit val hnilFromNode: Codec[HNil] =
+    Codec[HNil] {
+      case (Value.Tbl(pairs), defaults, _) if pairs.nonEmpty =>
+        Left((List(pairs.keySet.head), "Unknown field"))
+      case (Value.Arr(elems), defaults, _) if elems.nonEmpty =>
+        Left((List(), s"Too many elements; remove ${elems.head}"))
+      case _ => Right(HNil)
+    }
+
+
+  implicit def genericCodec[A, D <: HList, R <: HList](implicit
+    generic      : LabelledGeneric.Aux[A, R],
+    defaults     : Default.AsRecord.Aux[A, D],
+    defaultMapper: util.RecordToMap[D],
+    codec        : Codec[R]
+  ): Codec[A] = {
+    val d = defaultMapper(defaults())
+    Codec((v, _, _) => codec(v, d, 0).right.map(generic.from))
+  }
+}
 
 /**
   * Adapted from: https://stackoverflow.com/a/31641779
@@ -103,24 +127,3 @@ trait LowPriorityCodecs {
   }
 }
 
-object Codecs extends LowPriorityCodecs with PlatformCodecs {
-  implicit val hnilFromNode: Codec[HNil] =
-    Codec[HNil] {
-      case (Value.Tbl(pairs), defaults, _) if pairs.nonEmpty =>
-        Left((List(pairs.keySet.head), "Unknown field"))
-      case (Value.Arr(elems), defaults, _) if elems.nonEmpty =>
-        Left((List(), s"Too many elements; remove ${elems.head}"))
-      case _ => Right(HNil)
-    }
-
-
-  implicit def genericCodec[A, D <: HList, R <: HList](implicit
-    generic      : LabelledGeneric.Aux[A, R],
-    defaults     : Default.AsRecord.Aux[A, D],
-    defaultMapper: util.RecordToMap[D],
-    codec        : Codec[R]
-  ): Codec[A] = {
-    val d = defaultMapper(defaults())
-    Codec((v, _, _) => codec(v, d, 0).right.map(generic.from))
-  }
-}

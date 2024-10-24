@@ -8,6 +8,7 @@ val FastParse  = "3.1.1"
 val Shapeless  = "2.3.12"
 val ScalaCheck = "1.18.1"
 val ScalaTest  = "3.2.19"
+val ScalaJavaTime = "2.6.0"
 val AllScalaVersions = Seq(Scala2_12, Scala2_13, Scala3)
 
 val ScalaTestScalaCheck  = s"$ScalaTest.0"
@@ -64,7 +65,15 @@ lazy val toml =
           Seq.empty
         else
           Seq("com.chuusai" %%% "shapeless" % Shapeless)
+      },
+      libraryDependencies ++= {
+        if(virtualAxes.value.contains(VirtualAxis.jvm)) Seq.empty else 
+        Seq(
+          "io.github.cquiroz" %%% "scala-java-time" % ScalaJavaTime % Optional,
+          "io.github.cquiroz" %%% "scala-java-time" % ScalaJavaTime % Test,
+        )
       }
+
     )
 
 

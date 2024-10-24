@@ -1,8 +1,5 @@
-package toml
-
 import org.scalatest.funsuite.AnyFunSuite
-
-import Codecs._
+import toml._, derivation.auto._
 
 class CodecSpec extends AnyFunSuite {
   test("Booleans") {

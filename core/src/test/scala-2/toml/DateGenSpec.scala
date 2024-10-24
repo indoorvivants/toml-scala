@@ -11,6 +11,9 @@ import fastparse.Parsed.{Failure, Success}
 class DateGenSpec extends AnyPropSpec with ScalaCheckPropertyChecks with Matchers {
   import TestHelpers._
 
+  import org.scalacheck.Shrink
+  implicit val noShrink: Shrink[String] = Shrink.shrinkAny
+
   property("parse dates following the RFC 3339 spec (`date` parser)") {
     import Generators.Dates._
     forAll(dateFormatGen) { s =>
