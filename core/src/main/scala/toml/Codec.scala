@@ -11,7 +11,7 @@ trait Codec[A] {
   ): Either[Parse.Error, A]
 }
 
-object Codec {
+object Codec extends CodecVersionSpecific {
   type Defaults = Map[String, Any]
   type Index    = Int
 

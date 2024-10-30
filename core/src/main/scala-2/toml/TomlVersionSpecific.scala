@@ -2,7 +2,7 @@ package toml
 
 import shapeless._
 
-trait TomlVersionSpecific {
+private[toml] trait TomlVersionSpecific {
 
   def parse(toml: String, extensions: Set[Extension] = Set()): Either[Parse.Error, Value.Tbl]
 
