@@ -91,14 +91,15 @@ lazy val superMatrix = Seq((Compile / unmanagedSourceDirectories) ++= {
 
 
 concurrentRestrictions in Global ++= {
-  if(sys.env.contains("CI")) 
-    Seq(
-      Tags.limit(Tags.Test, 1),
-      // By default dependencies of test can be run in parallel, it includeds Scala Native/Scala.js linkers
-      // Limit them to lower memory usage, especially when targetting LLVM
-      Tags.limit(NativeTags.Link, 1),
-      Tags.limit(ScalaJSTags.Link, 1)
-    )
-  else Seq.empty
+  val parallelism = 
+    if(sys.env.contains("CI")) 1 
+    else (java.lang.Runtime.getRuntime().availableProcessors() - 2).max(1)
+  Seq(
+    Tags.limit(Tags.Test, parallelism),
+    // By default dependencies of test can be run in parallel, it includeds Scala Native/Scala.js linkers
+    // Limit them to lower memory usage, especially when targetting LLVM
+    Tags.limit(NativeTags.Link, parallelism),
+    Tags.limit(ScalaJSTags.Link, parallelism)
+  )
 }
 

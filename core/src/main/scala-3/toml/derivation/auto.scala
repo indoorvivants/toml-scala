@@ -1,11 +1,8 @@
-package toml.derivation
+package toml.derivation.auto
 
 import toml._
 
 import scala.annotation.implicitNotFound
 import scala.deriving.*
 
-object auto {
-  given autoDerivationCodec[A: Mirror.Of]: Codec[A] = Codec.derived[A]
-}
-
+inline given autoDerivationCodec[A: Mirror.Of]: Codec[A] = Codec.derived[A]
