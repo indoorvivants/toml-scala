@@ -3,6 +3,7 @@ val Scala2_13  = "2.13.14"
 val Scala3     = "3.3.4"
 val FastParse  = "3.1.1"
 val Shapeless  = "2.3.12"
+val Shapeless3 = "3.4.3"
 val ScalaCheck = "1.18.1"
 val ScalaTest  = "3.2.19"
 val ScalaJavaTime = "2.6.0"
@@ -60,12 +61,12 @@ lazy val toml =
       ),
       libraryDependencies ++= {
         if(scalaVersion.value.startsWith("3."))
-          Seq.empty
+          Seq("org.typelevel" %%% "shapeless3-deriving" % Shapeless3)
         else
           Seq("com.chuusai" %%% "shapeless" % Shapeless)
       },
       libraryDependencies ++= {
-        if(virtualAxes.value.contains(VirtualAxis.jvm)) Seq.empty else 
+        if(virtualAxes.value.contains(VirtualAxis.jvm)) Seq.empty else
         Seq(
           "io.github.cquiroz" %%% "scala-java-time" % ScalaJavaTime,
         )
