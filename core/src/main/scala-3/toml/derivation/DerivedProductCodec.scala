@@ -87,11 +87,12 @@ object DerivedProductCodec:
                 yield result
               case Value.Arr(values) if values.nonEmpty =>
                 labels.nextOption() match
-                  case Some((_,idx)) if idx < values.length =>
+                  case Some((_, idx)) if idx < values.length =>
                     codec.apply(values(idx), d.defaultParams, idx)
                       .left.map((a,m) => (s"#${idx + 1}" +: a, m))
                   case Some((witnessName, _)) if d.defaultParams.contains(witnessName) =>
                     Right(d.defaultParams(witnessName).asInstanceOf[t])
+                  case Some(_) if codec.optional => Right(None.asInstanceOf[t])
                   case Some((witnessName, _)) =>
                       fieldNotFound(witnessName)
                   case None => Left(Nil, "Field not available")
@@ -100,7 +101,8 @@ object DerivedProductCodec:
                 if d.defaultParams.contains(witnessName) then
                   Right(d.defaultParams(witnessName).asInstanceOf[t])
                 else
-                  fieldNotFound(witnessName)
+                  if codec.optional then Right(None.asInstanceOf[t])
+                  else fieldNotFound(witnessName)
               case _ =>
                 val (witnessName,_) = labels.next()
                 fieldNotFound(witnessName)
