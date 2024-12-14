@@ -55,7 +55,7 @@ object DerivedProductCodec:
     inst: K0.ProductInstances[Codec, P],
     d: DefaultParams[P],
   ): DerivedProductCodec[P] with
-    override def apply(value: Value, x : Defaults, i :Index): Either[Parse.Error, P] =
+    override def apply(value: Value, __ : Defaults, ___ :Index): Either[Parse.Error, P] =
       val labels = labelled.elemLabels.iterator.zipWithIndex
       val labelsSet = labelled.elemLabels.toSet
 
