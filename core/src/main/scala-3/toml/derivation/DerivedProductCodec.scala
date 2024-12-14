@@ -13,7 +13,7 @@ object DerivedProductCodec:
   ): DerivedProductCodec[Option[P]] with
     type Result[A] = Either[Parse.Error, Option[A]]
     override def optional: Boolean = true
-    def apply(value: Value, defaults : Defaults, ___ : Int): Either[Parse.Error, Option[P]] =
+    def apply(value: Value, __ : Defaults, ___ : Int): Either[Parse.Error, Option[P]] =
       val labels = labelled.elemLabels.iterator.zipWithIndex
 
       val decodeField =
