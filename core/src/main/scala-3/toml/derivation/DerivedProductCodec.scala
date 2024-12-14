@@ -17,13 +17,12 @@ object DerivedProductCodec:
     type Result[A] = Either[Parse.Error, Option[A]]
     override def optional: Boolean = true
     def apply(value: Value, __ : Defaults, ___ : Int): Result[P] =
-      val labels = labelled.elemLabels.iterator.zipWithIndex
-
+      val labels = labelled.elemLabels.iterator
       val decodeField =
         [t] => (codec: Codec[t]) =>
           value match
             case Value.Tbl(map) =>
-              val (witnessName, _) = labels.next()
+              val witnessName = labels.next()
               map.get(witnessName) match
                 case Some(value) =>
                   codec(value, d.defaultParams, 0)
@@ -35,7 +34,7 @@ object DerivedProductCodec:
                       .map(_.asInstanceOf[t])
                   )
             case value =>
-              Left((Nil, "Not Implemented"))
+              Left((Nil, s"Unexpected $value in optional value codec derivation"))
       val combineFields: Ap[[a] =>> Result[a]] =
         [a, b] =>
           (ff: Result[a => b], fa: Result[a]) =>
@@ -61,6 +60,7 @@ object DerivedProductCodec:
   ): DerivedProductCodec[P] with
     override def apply(value: Value, __ : Defaults, ___ :Index): Either[Parse.Error, P] =
       val labels = labelled.elemLabels.iterator.zipWithIndex
+      val labelsSize = labels.size
       val labelsSet = labelled.elemLabels.toSet
 
       def validateNoExtraField(map: Map[String, Value]) =
@@ -72,6 +72,8 @@ object DerivedProductCodec:
       val decodeField =
         [t] => (codec: Codec[t]) =>
           value match
+              case Value.Arr(values) if values.size > labelsSize =>
+                Left((List(),s"Too many elements; remove ${values(labels.size)}"))
               case Value.Tbl(map) =>
                 for
                   _ <- validateNoExtraField(map)
