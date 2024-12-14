@@ -3,7 +3,6 @@ package derivation
 import toml.Codec.Defaults
 import toml.Codec.Index
 import shapeless3.deriving.*
-import shapeless3.deriving.K1.ProductGeneric
 
 trait DerivedProductCodec[P] extends Codec[P]
 object DerivedProductCodec:
@@ -32,16 +31,16 @@ object DerivedProductCodec:
                     d.defaultParams.get(witnessName)
                       .map(_.asInstanceOf[t])
                   )
-            case Value.Arr(values) =>
+            case value =>
               Left((Nil, "Not Implemented"))
       val combineFields: Ap[[a] =>> Result[a]] =
         [a, b] =>
           (ff: Result[a => b], fa: Result[a]) =>
             (fa, ff) match
-              case (Left(e),Right(_)) => Left(e)
-              case (_,Left(e)) => Left(e)
-              case (Right(Some(a)),Right(Some(f))) => Right(Some(f(a)))
-              case (Right(_),Right(_)) => Right(None)
+              case (Left(e), Right(_)) => Left(e)
+              case (_, Left(e)) => Left(e)
+              case (Right(Some(a)), Right(Some(f))) => Right(Some(f(a)))
+              case (Right(_), Right(_)) => Right(None)
 
       inst.constructA[Result](decodeField)(
         pure = [a] => (x: a) => Right(Some(x)),
