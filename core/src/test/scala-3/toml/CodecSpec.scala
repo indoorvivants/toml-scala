@@ -1,6 +1,7 @@
 import org.scalatest.funsuite.AnyFunSuite
 import toml._, derivation.auto._
 
+// FIXME: implement derivation for recursive types with default value and optional value
 trait CodecSpecExtras {self: CodecSpec =>
 
   test("Error handling (6)") {
