@@ -6,6 +6,9 @@ import shapeless3.deriving.*
 
 trait DerivedProductCodec[P] extends Codec[P]
 object DerivedProductCodec:
+  private def fieldNotFound[T](label: String): Either[Parse.Error, T] =
+    Left(Nil, s"Cannot resolve `${label}`")
+
   given [P <: Product](using
     labelled: Labelling[P],
     inst: K0.ProductInstances[Codec, P],
@@ -13,7 +16,7 @@ object DerivedProductCodec:
   ): DerivedProductCodec[Option[P]] with
     type Result[A] = Either[Parse.Error, Option[A]]
     override def optional: Boolean = true
-    def apply(value: Value, __ : Defaults, ___ : Int): Either[Parse.Error, Option[P]] =
+    def apply(value: Value, __ : Defaults, ___ : Int): Result[P] =
       val labels = labelled.elemLabels.iterator.zipWithIndex
 
       val decodeField =
@@ -79,7 +82,7 @@ object DerivedProductCodec:
                     case None =>
                       d.defaultParams.get(witnessName) match
                         case None if codec.optional => Right(None.asInstanceOf[t])
-                        case None => Left((Nil,s"Cannot resolve `$witnessName`"))
+                        case None => fieldNotFound(witnessName)
                         case Some(value) => Right(value.asInstanceOf[t])
                 yield result
               case Value.Arr(values) if values.nonEmpty =>
@@ -87,20 +90,20 @@ object DerivedProductCodec:
                   case Some((_,idx)) if idx < values.length =>
                     codec.apply(values(idx), d.defaultParams, idx)
                       .left.map((a,m) => (s"#${idx + 1}" +: a, m))
-                  case Some((witnessName,idx)) if d.defaultParams.contains(witnessName) =>
+                  case Some((witnessName, _)) if d.defaultParams.contains(witnessName) =>
                     Right(d.defaultParams(witnessName).asInstanceOf[t])
-                  case Some((witnessName, idx)) =>
-                      Left((Nil, s"Cannot resolve `${witnessName}`"))
+                  case Some((witnessName, _)) =>
+                      fieldNotFound(witnessName)
                   case None => Left(Nil, "Field not available")
               case Value.Arr(values) if values.isEmpty =>
                 val (witnessName, idx) = labels.next()
                 if d.defaultParams.contains(witnessName) then
                   Right(d.defaultParams(witnessName).asInstanceOf[t])
                 else
-                  Left(Nil, s"Cannot resolve `${witnessName}`")
+                  fieldNotFound(witnessName)
               case _ =>
                 val (witnessName,_) = labels.next()
-                Left(Nil, s"Cannot resolve `${witnessName}`")
+                fieldNotFound(witnessName)
 
       val combineFields: Ap[[a] =>> Either[Parse.Error, a]] =
         [a, b] =>
