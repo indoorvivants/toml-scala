@@ -1,7 +1,7 @@
 package toml
 
 import toml.derivation.DefaultParams
-import shapeless3.deriving.K0.CoproductGeneric
+import shapeless3.deriving.K0.ProductGeneric
 trait TomlVersionSpecific:
     self:Toml.type =>
         final def parseAs[T](input: Value.Tbl | String)(
