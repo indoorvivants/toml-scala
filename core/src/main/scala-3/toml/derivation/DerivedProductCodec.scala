@@ -3,16 +3,18 @@ package derivation
 import toml.Codec.Defaults
 import toml.Codec.Index
 import shapeless3.deriving.*
+import shapeless3.deriving.K1.ProductGeneric
 
 trait DerivedProductCodec[P] extends Codec[P]
 object DerivedProductCodec:
   given [P <: Product](using
     labelled: Labelling[P],
     inst: K0.ProductInstances[Codec, P],
-    d: DefaultParams[P],
+    d: DefaultParams[P]
   ): DerivedProductCodec[Option[P]] with
     type Result[A] = Either[Parse.Error, Option[A]]
-    def apply(value: Value, __ : Defaults, ___ : Int): Either[Parse.Error, Option[P]] =
+    override def optional: Boolean = true
+    def apply(value: Value, defaults : Defaults, ___ : Int): Either[Parse.Error, Option[P]] =
       val labels = labelled.elemLabels.iterator.zipWithIndex
 
       val decodeField =
@@ -50,7 +52,7 @@ object DerivedProductCodec:
       )
 
 
-  given [P](using
+  given [P <: Product](using
     labelled: Labelling[P],
     inst: K0.ProductInstances[Codec, P],
     d: DefaultParams[P],
@@ -76,9 +78,10 @@ object DerivedProductCodec:
                     case Some(value) => codec.apply(value, d.defaultParams, 0)
                       .left.map((a,m) => (witnessName +: a, m))
                     case None =>
-                      d.defaultParams.get(witnessName)
-                        .toRight((Nil,s"Cannot resolve `$witnessName`"))
-                        .map(_.asInstanceOf[t])
+                      d.defaultParams.get(witnessName) match
+                        case None if codec.optional => Right(None.asInstanceOf[t])
+                        case None => Left((Nil,s"Cannot resolve `$witnessName`"))
+                        case Some(value) => Right(value.asInstanceOf[t])
                 yield result
               case Value.Arr(values) if values.nonEmpty =>
                 labels.nextOption() match

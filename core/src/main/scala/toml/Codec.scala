@@ -9,12 +9,12 @@ trait Codec[A] {
     defaults: Codec.Defaults,
     index:    Int
   ): Either[Parse.Error, A]
+  private[toml] def optional: Boolean = false
 }
 
 object Codec {
   type Defaults = Map[String, Any]
   type Index    = Int
-
   def apply[T](
     f: (Value, Defaults, Index) => Either[Parse.Error, T]
   ): Codec[T] = new Codec[T] {
