@@ -2,10 +2,7 @@ package toml
 
 import shapeless._
 
-trait TomlVersionSpecific {
-
-  def parse(toml: String, extensions: Set[Extension] = Set()): Either[Parse.Error, Value.Tbl]
-
+trait TomlVersionSpecific { self: Toml.type =>
   class CodecHelperGeneric[A] {
     def apply[D <: HList, R <: HList](table: Value.Tbl)(implicit
         generic: LabelledGeneric.Aux[A, R],
