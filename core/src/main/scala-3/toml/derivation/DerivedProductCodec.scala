@@ -6,120 +6,57 @@ import shapeless3.deriving.*
 
 trait DerivedProductCodec[P] extends Codec[P]
 object DerivedProductCodec:
-  private def fieldNotFound[T](label: String): Either[Parse.Error, T] =
-    Left(Nil, s"Cannot resolve `${label}`")
-
-  given [P <: Product](using
-    labelled: Labelling[P],
-    inst: K0.ProductInstances[Codec, P],
-    d: DefaultParams[P]
-  ): DerivedProductCodec[Option[P]] with
-    type Result[A] = Either[Parse.Error, Option[A]]
-    override def optional: Boolean = true
-    def apply(value: Value, __ : Defaults, ___ : Int): Result[P] =
-      val labels = labelled.elemLabels.iterator
-      val decodeField =
-        [t] => (codec: Codec[t]) =>
+  given codecGen[P](
+    using inst: K0.ProductInstances[Codec, P],labelling: Labelling[P], d:DefaultParams[P]
+  ): DerivedProductCodec[P]  with
+    def apply(value: Value, defaults: Defaults, index: Int): Either[Parse.Error, P] =
+      type Acc = (Value, (/*labels: */Seq[String], Index), Parse.Error)
+      inst.unfold[Acc]((value, (labelling.elemLabels, index), (Nil, "")))(
+        [t] => (acc : Acc, codec: Codec[t]) =>
+          val (value, (labels @ (head +: tail), index), (path, e)) = acc : @unchecked
           value match
+            case Value.Tbl(map) if map.contains(head) =>
+              codec(map(head), defaults, 0) match
+                case Right(t) => ((Value.Tbl(map - head),(tail,0),(path,e)), Some(t))
+                case Left((path,e)) => ((value, (labels,index), (head :: path, e)), None)
             case Value.Tbl(map) =>
-              val witnessName = labels.next()
-              map.get(witnessName) match
-                case Some(value) =>
-                  codec(value, d.defaultParams, 0)
-                    .map(Some(_))
-                    .left.map((a,m) => (witnessName +: a, m))
+              map.keySet.diff(labelling.elemLabels.toSet).headOption match
                 case None =>
-                  Right(
-                    d.defaultParams.get(witnessName)
-                      .map(_.asInstanceOf[t])
-                  )
-            case value =>
-              Left((Nil, s"Unexpected $value in optional value codec derivation"))
-      val combineFields: Ap[[a] =>> Result[a]] =
-        [a, b] =>
-          (ff: Result[a => b], fa: Result[a]) =>
-            (fa, ff) match
-              case (Left(e), Right(_)) => Left(e)
-              case (_, Left(e)) => Left(e)
-              case (Right(Some(a)), Right(Some(f))) => Right(Some(f(a)))
-              case (Right(_), Right(_)) => Right(None)
-
-      inst.constructA[Result](decodeField)(
-        pure = [a] => (x: a) => Right(Some(x)),
-        map = [a, b] => (fa: Result[a], f: a => b) => fa.map:
-          case Some(a) => Some(f(a))
-          case None => None,
-        combineFields
-      )
-
-
-  given [P <: Product](using
-    labelled: Labelling[P],
-    inst: K0.ProductInstances[Codec, P],
-    d: DefaultParams[P],
-  ): DerivedProductCodec[P] with
-    override def apply(value: Value, __ : Defaults, ___ :Index): Either[Parse.Error, P] =
-      val labels = labelled.elemLabels.iterator.zipWithIndex
-      val labelsSize = labels.size
-      val labelsSet = labelled.elemLabels.toSet
-
-      def validateNoExtraField(map: Map[String, Value]) =
-        map.keySet.diff(labelsSet).headOption match
-          case None => Right(())
-          case Some(unknownField) =>
-            Left((List(unknownField), "Unknown field"))
-
-      val decodeField =
-        [t] => (codec: Codec[t]) =>
-          value match
-              case Value.Arr(values) if values.size > labelsSize =>
-                Left((List(),s"Too many elements; remove ${values(labels.size)}"))
-              case Value.Tbl(map) =>
-                for
-                  _ <- validateNoExtraField(map)
-                  (witnessName, _) = labels.next()
-                  result <- map.get(witnessName) match
-                    case Some(value) => codec.apply(value, d.defaultParams, 0)
-                      .left.map((a,m) => (witnessName +: a, m))
+                  d.defaultParams.get(head) match
                     case None =>
-                      d.defaultParams.get(witnessName) match
-                        case None if codec.optional => Right(None.asInstanceOf[t])
-                        case None => fieldNotFound(witnessName)
-                        case Some(value) => Right(value.asInstanceOf[t])
-                yield result
-              case Value.Arr(values) if values.nonEmpty =>
-                labels.nextOption() match
-                  case Some((_, idx)) if idx < values.length =>
-                    codec.apply(values(idx), d.defaultParams, idx)
-                      .left.map((a,m) => (s"#${idx + 1}" +: a, m))
-                  case Some((witnessName, _)) if d.defaultParams.contains(witnessName) =>
-                    Right(d.defaultParams(witnessName).asInstanceOf[t])
-                  case Some(_) if codec.optional => Right(None.asInstanceOf[t])
-                  case Some((witnessName, _)) =>
-                      fieldNotFound(witnessName)
-                  case None => Left(Nil, "Field not available")
-              case Value.Arr(values) if values.isEmpty =>
-                val (witnessName, idx) = labels.next()
-                if d.defaultParams.contains(witnessName) then
-                  Right(d.defaultParams(witnessName).asInstanceOf[t])
-                else
-                  if codec.optional then Right(None.asInstanceOf[t])
-                  else fieldNotFound(witnessName)
-              case _ =>
-                val (witnessName,_) = labels.next()
-                fieldNotFound(witnessName)
-
-      val combineFields: Ap[[a] =>> Either[Parse.Error, a]] =
-        [a, b] =>
-          (ff: Either[Parse.Error, a => b], fa: Either[Parse.Error, a]) =>
-            (fa, ff) match
-                case (Left(e),Right(_)) => Left(e)
-                case (Right(_),Left(e)) => Left(e)
-                case (Right(a),Right(f)) => Right(f(a))
-                case (Left((_, _)), Left((path, message))) => Left((path,message))
-
-      inst.constructA(decodeField)(
-        pure = [a] => (x: a) => Right(x),
-        map = [a, b] => (fa: Either[Parse.Error, a], f: a => b) => fa.map(f),
-        ap = combineFields
-      )
+                      if codec.optional then
+                        ((value,(tail, index),(path,e)), Some(None.asInstanceOf[t]))
+                      else
+                        ((value, (labels,index), (path, s"Cannot resolve `${head}`")),None)
+                    case Some(t) =>
+                      ((value,(tail, index),(path,e)), Some(t.asInstanceOf[t]))
+                case Some(unknown) =>
+                  ((value, (labels, index), (unknown :: path, s"Unknown field")), None)
+            case Value.Arr(values @ (head +: tail)) =>
+              codec(head, defaults, index) match
+                case Left((path,e)) => ((value, (labels, index), (s"#${index + 1}" :: path, e)),None)
+                case Right(t) => ((Value.Arr(tail), (labels.tail, index + 1), (path,e)),Some(t))
+            case Value.Arr(Nil) =>
+              d.defaultParams.get(head) match
+                case None =>
+                  if codec.optional then
+                    ((value,(tail, index),(path,e)), Some(None.asInstanceOf[t]))
+                  else
+                    ((value, (labels,index), (path, s"Cannot resolve `$head`")),None)
+                case Some(t) =>
+                  ((value,(tail, index),(path,e)), Some(t.asInstanceOf[t]))
+            case _ =>
+              ((value,(labels, index),(Nil, s"Cannot resolve `$head`")), None)
+      ) match
+        case ((Value.Tbl(map), _,(path, e)), p) =>
+          if map.isEmpty then p.toRight((path ,e))
+          else
+            map.keySet.diff(labelling.elemLabels.toSet).headOption
+              match
+              case None => p.toRight((path,e))
+              case Some(f) => Left(((List(f), s"Unknown field")))
+        case ((Value.Arr(elems),_,(path, e)),p)  =>
+          if elems.isEmpty then p.toRight((path,e))
+          else if e.isEmpty() then Left((path, s"Too many elements; remove ${elems.head}"))
+          else Left((path,e))
+        case ((_,_,(path,e)),_) => Left((path,e))
