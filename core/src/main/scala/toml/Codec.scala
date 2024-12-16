@@ -1,6 +1,7 @@
 package toml
 
 import scala.annotation.implicitNotFound
+import toml.derivation.DerivedSyntax
 
 @implicitNotFound("Codec[${A}] implicit not defined in scope")
 trait Codec[A] {
@@ -12,7 +13,7 @@ trait Codec[A] {
   private[toml] def optional: Boolean = false
 }
 
-object Codec {
+object Codec extends DerivedSyntax {
   type Defaults = Map[String, Any]
   type Index    = Int
   def apply[T](
