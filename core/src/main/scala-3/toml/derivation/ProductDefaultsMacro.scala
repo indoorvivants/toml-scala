@@ -1,9 +1,9 @@
 package toml.derivation
 import scala.quoted.*
 private[toml] object macros:
-  inline def defaultParams[T]: Map[String, Any] = ${ defaultParmasImpl[T] }
+  inline def defaultParams[T]: Map[String, Any] = ${ defaultParamsImpl[T] }
 
-  def defaultParmasImpl[T](using
+  def defaultParamsImpl[T](using
       quotes: Quotes,
       tpe: Type[T]
   ): Expr[Map[String, Any]] =
@@ -27,5 +27,5 @@ private[toml] object macros:
       Expr.ofList(idents.map(_.asExpr))
 
     '{ $namesExpr.zip($identsExpr).toMap }
-  end defaultParmasImpl
+  end defaultParamsImpl
 end macros
