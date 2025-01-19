@@ -1,13 +1,13 @@
 import org.scalatest.funsuite.AnyFunSuite
-import toml._, derivation.auto._
+import toml.*, derivation.auto.*
 
 // FIXME: implement derivation for recursive types with default value and optional value
-trait CodecSpecExtras {self: CodecSpec =>
+trait CodecSpecExtras:
+  self: CodecSpec =>
 
   test("Error handling (6)") {
     // Despite of the default value, an error must be triggered
-    case class Module(a: Option[Module] = None,
-                      b: List[List[Int]] = List())
+    case class Module(a: Option[Module] = None, b: List[List[Int]] = List())
     case class Root(module: Map[String, Module])
     val toml =
       """
@@ -19,4 +19,4 @@ trait CodecSpecExtras {self: CodecSpec =>
     //          List("module", "name", "a", "b", "#1"),
     //          "List expected, Num(1) provided")))
   }
-}
+end CodecSpecExtras
