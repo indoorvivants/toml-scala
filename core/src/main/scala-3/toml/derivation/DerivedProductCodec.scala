@@ -114,6 +114,11 @@ end DerivedProductCodec
 
 /** This type represents derivation context.
   *
+  * Codec derivation is stateful operation in that
+  *   - it removes an entry from TOML table when it successfully parse a field
+  *   - it traverses TOML array by mutable index
+  *   - it accumulates error address as a list
+  *
   * @param tomlValue
   *   the TOML value from which the value of type `P` is built
   * @param labels
