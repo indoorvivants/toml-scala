@@ -2,7 +2,7 @@ package toml
 package derivation
 import shapeless3.deriving.*
 
-trait DerivedSyntax:
+private[toml] trait DerivedSyntax:
   self: Codec.type =>
   inline def derived[P](using
       inst: K0.ProductInstances[Codec, P],
