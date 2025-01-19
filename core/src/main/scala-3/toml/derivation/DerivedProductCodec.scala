@@ -16,62 +16,60 @@ object DerivedProductCodec:
         defaults: Defaults,
         index: Int
     ): Either[Parse.Error, P] =
-      type Acc = (Value, ( /*labels: */ Seq[String], Index), Parse.Error)
-      inst.unfold[Acc]((value, (labelling.elemLabels, index), (Nil, "")))(
+      type Acc = Context
+      inst.unfold[Acc](
+        Context(value, labelling.elemLabels, index)
+      )(
         [t] =>
           (acc: Acc, codec: Codec[t]) =>
-            val (value, (labels @ (head +: tail), index), (path, e)) =
-              acc: @unchecked
-            value match
+            val head = acc.head
+            acc.tomlValue match
               case Value.Tbl(map) if map.contains(head) =>
                 codec(map(head), defaults, 0) match
                   case Right(t) =>
-                    ((Value.Tbl(map - head), (tail, 0), (path, e)), Some(t))
+                    (
+                      Context(Value.Tbl(map - head), acc.tail, 0, acc.error),
+                      Some(t)
+                    )
                   case Left((path, e)) =>
-                    ((value, (labels, index), (head :: path, e)), None)
+                    (acc.withError(head :: path, e), None)
               case Value.Tbl(map) =>
                 map.keySet.diff(labelling.elemLabels.toSet).headOption match
                   case None =>
                     d.defaultParams.get(head) match
                       case None =>
                         if codec.optional then
-                          (
-                            (value, (tail, index), (path, e)),
-                            Some(None.asInstanceOf[t])
-                          )
+                          (acc.continueWithTail, Some(None.asInstanceOf[t]))
                         else
                           (
-                            (
-                              value,
-                              (labels, index),
-                              (path, s"Cannot resolve `${head}`")
-                            ),
+                            acc.withErrorMessage(s"Cannot resolve `${head}`"),
                             None
                           )
                       case Some(t) =>
-                        (
-                          (value, (tail, index), (path, e)),
-                          Some(t.asInstanceOf[t])
-                        )
+                        (acc.continueWithTail, Some(t.asInstanceOf[t]))
                   case Some(unknown) =>
                     (
-                      (
-                        value,
-                        (labels, index),
-                        (unknown :: path, s"Unknown field")
+                      acc.withError(
+                        unknown :: acc.errorAddress,
+                        s"Unknown field"
                       ),
                       None
                     )
               case Value.Arr(values @ (head +: tail)) =>
-                codec(head, defaults, index) match
+                codec(head, defaults, acc.index) match
                   case Left((path, e)) =>
                     (
-                      (value, (labels, index), (s"#${index + 1}" :: path, e)),
+                      acc.withError(s"#${acc.index + 1}" :: path, e),
                       None
                     )
                   case Right(t) =>
                     (
-                      (Value.Arr(tail), (labels.tail, index + 1), (path, e)),
+                      Context(
+                        Value.Arr(tail),
+                        acc.tail,
+                        acc.index + 1,
+                        (acc.errorAddress, acc.errorMessage)
+                      ),
                       Some(t)
                     )
               case Value.Arr(Nil) =>
@@ -79,40 +77,81 @@ object DerivedProductCodec:
                   case None =>
                     if codec.optional then
                       (
-                        (value, (tail, index), (path, e)),
+                        acc.continueWithTail,
                         Some(None.asInstanceOf[t])
                       )
                     else
                       (
-                        (
-                          value,
-                          (labels, index),
-                          (path, s"Cannot resolve `$head`")
+                        acc.withErrorMessage(
+                          s"Cannot resolve `$head`"
                         ),
                         None
                       )
                   case Some(t) =>
-                    ((value, (tail, index), (path, e)), Some(t.asInstanceOf[t]))
+                    (acc.continueWithTail, Some(t.asInstanceOf[t]))
               case _ =>
                 (
-                  (value, (labels, index), (Nil, s"Cannot resolve `$head`")),
+                  acc.withError(Nil, s"Cannot resolve `$head`"),
                   None
-              )
+                )
             end match
       ) match
-        case ((Value.Tbl(map), _, (path, e)), p) =>
+        case (Context(Value.Tbl(map), _, _, (path, e)), p) =>
           if map.isEmpty then p.toRight((path, e))
           else
             map.keySet.diff(labelling.elemLabels.toSet).headOption match
               case None    => p.toRight((path, e))
               case Some(f) => Left(((List(f), s"Unknown field")))
-        case ((Value.Arr(elems), _, (path, e)), p) =>
+        case (Context(Value.Arr(elems), _, _, (path, e)), p) =>
           if elems.isEmpty then p.toRight((path, e))
           else if e.isEmpty() then
             Left((path, s"Too many elements; remove ${elems.head}"))
           else Left((path, e))
-        case ((_, _, (path, e)), _) => Left((path, e))
+        case (Context(_, _, _, (path, e)), _) => Left((path, e))
       end match
     end apply
   end codecGen
 end DerivedProductCodec
+
+/** This type represents derivation context.
+  *
+  * @param tomlValue
+  *   the TOML value from which the value of type `P` is built
+  * @param labels
+  *   field names of type `P`
+  * @param index
+  *   index of array elements
+  * @param error
+  *   a pair of error address and error message.
+  */
+private final case class Context(
+    tomlValue: Value,
+    labels: Seq[String],
+    index: Int,
+    error: Parse.Error
+):
+  def head = labels.head
+  def tail = labels.tail
+  def errorAddress = error._1
+  def errorMessage = error._2
+
+  def withErrorMessage(message: String) = copy(
+    error = (errorAddress, message)
+  )
+  def withError(address: List[String], message: String) = copy(
+    error = (address, message)
+  )
+  def continueWithTail = copy(
+    tomlValue,
+    tail,
+    index,
+    error
+  )
+end Context
+
+private object Context:
+  def apply(
+      tomlValue: Value,
+      labels: Seq[String],
+      index: Int
+  ) = new Context(tomlValue, labels, index, (Nil, ""))
