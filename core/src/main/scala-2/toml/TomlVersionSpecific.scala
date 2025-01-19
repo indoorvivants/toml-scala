@@ -2,7 +2,7 @@ package toml
 
 import shapeless._
 
-trait TomlVersionSpecific { self: Toml.type =>
+private[toml] trait TomlVersionSpecific { self: Toml.type =>
   class CodecHelperGeneric[A] {
     def apply[D <: HList, R <: HList](table: Value.Tbl)(implicit
         generic: LabelledGeneric.Aux[A, R],
