@@ -2,7 +2,7 @@ package toml
 
 import toml.derivation.DefaultParams
 import shapeless3.deriving.K0.ProductGeneric
-trait TomlVersionSpecific:
+private[toml] trait TomlVersionSpecific:
   self: Toml.type =>
   class CodecHelperGeneric[T]:
     def apply(table: Value.Tbl)(using
