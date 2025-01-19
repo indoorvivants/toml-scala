@@ -2,10 +2,10 @@ package toml
 package derivation
 import shapeless3.deriving.*
 
-trait DerivedSyntax {self: Codec.type =>
-    inline def derived[P](using
+trait DerivedSyntax:
+  self: Codec.type =>
+  inline def derived[P](using
       inst: K0.ProductInstances[Codec, P],
       labelling: Labelling[P],
       inline d: DefaultParams[P]
-    ): Codec[P] = DerivedProductCodec.codecGen[P]
-}
+  ): Codec[P] = DerivedProductCodec.codecGen[P]
