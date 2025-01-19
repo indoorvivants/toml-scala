@@ -16,59 +16,58 @@ object DerivedProductCodec:
         defaults: Defaults,
         index: Int
     ): Either[Parse.Error, P] =
-      type Acc = Context
-      inst.unfold[Acc](
+      inst.unfold[Context](
         Context(value, labelling.elemLabels, index)
       )(
         [t] =>
-          (acc: Acc, codec: Codec[t]) =>
-            val head = acc.head
-            acc.tomlValue match
+          (ctx: Context, codec: Codec[t]) =>
+            val head = ctx.head
+            ctx.tomlValue match
               case Value.Tbl(map) if map.contains(head) =>
                 codec(map(head), defaults, 0) match
                   case Right(t) =>
                     (
-                      Context(Value.Tbl(map - head), acc.tail, 0, acc.error),
+                      Context(Value.Tbl(map - head), ctx.tail, 0, ctx.error),
                       Some(t)
                     )
                   case Left((path, e)) =>
-                    (acc.withError(head :: path, e), None)
+                    (ctx.withError(head :: path, e), None)
               case Value.Tbl(map) =>
                 map.keySet.diff(labelling.elemLabels.toSet).headOption match
                   case None =>
                     d.defaultParams.get(head) match
                       case None =>
                         if codec.optional then
-                          (acc.continueWithTail, Some(None.asInstanceOf[t]))
+                          (ctx.continueWithTail, Some(None.asInstanceOf[t]))
                         else
                           (
-                            acc.withErrorMessage(s"Cannot resolve `${head}`"),
+                            ctx.withErrorMessage(s"Cannot resolve `${head}`"),
                             None
                           )
                       case Some(t) =>
-                        (acc.continueWithTail, Some(t.asInstanceOf[t]))
+                        (ctx.continueWithTail, Some(t.asInstanceOf[t]))
                   case Some(unknown) =>
                     (
-                      acc.withError(
-                        unknown :: acc.errorAddress,
+                      ctx.withError(
+                        unknown :: ctx.errorAddress,
                         s"Unknown field"
                       ),
                       None
                     )
               case Value.Arr(values @ (head +: tail)) =>
-                codec(head, defaults, acc.index) match
+                codec(head, defaults, ctx.index) match
                   case Left((path, e)) =>
                     (
-                      acc.withError(s"#${acc.index + 1}" :: path, e),
+                      ctx.withError(s"#${ctx.index + 1}" :: path, e),
                       None
                     )
                   case Right(t) =>
                     (
                       Context(
                         Value.Arr(tail),
-                        acc.tail,
-                        acc.index + 1,
-                        (acc.errorAddress, acc.errorMessage)
+                        ctx.tail,
+                        ctx.index + 1,
+                        (ctx.errorAddress, ctx.errorMessage)
                       ),
                       Some(t)
                     )
@@ -77,21 +76,21 @@ object DerivedProductCodec:
                   case None =>
                     if codec.optional then
                       (
-                        acc.continueWithTail,
+                        ctx.continueWithTail,
                         Some(None.asInstanceOf[t])
                       )
                     else
                       (
-                        acc.withErrorMessage(
+                        ctx.withErrorMessage(
                           s"Cannot resolve `$head`"
                         ),
                         None
                       )
                   case Some(t) =>
-                    (acc.continueWithTail, Some(t.asInstanceOf[t]))
+                    (ctx.continueWithTail, Some(t.asInstanceOf[t]))
               case _ =>
                 (
-                  acc.withError(Nil, s"Cannot resolve `$head`"),
+                  ctx.withError(Nil, s"Cannot resolve `$head`"),
                   None
                 )
             end match
