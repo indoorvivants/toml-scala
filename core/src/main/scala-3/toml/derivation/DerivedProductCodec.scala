@@ -34,6 +34,14 @@ object DerivedProductCodec:
                     (ctx.withError(head :: path, e), None)
               case Value.Tbl(map) =>
                 map.keySet.diff(labelling.elemLabels.toSet).headOption match
+                  case Some(unknown) =>
+                    (
+                      ctx.withError(
+                        unknown :: ctx.errorAddress,
+                        s"Unknown field"
+                      ),
+                      None
+                    )
                   case None =>
                     d.defaultParams.get(head) match
                       case None =>
@@ -46,14 +54,6 @@ object DerivedProductCodec:
                           )
                       case Some(t) =>
                         (ctx.continueWithTail, Some(t.asInstanceOf[t]))
-                  case Some(unknown) =>
-                    (
-                      ctx.withError(
-                        unknown :: ctx.errorAddress,
-                        s"Unknown field"
-                      ),
-                      None
-                    )
               case Value.Arr(values @ (head +: tail)) =>
                 codec(head, defaults, ctx.index) match
                   case Left((path, e)) =>
@@ -115,8 +115,8 @@ end DerivedProductCodec
 /** This type represents derivation context.
   *
   * Codec derivation is stateful operation in that
-  *   - it removes an entry from TOML table when it successfully parse a field
-  *   - it traverses TOML array by mutable index
+  *   - it removes an entry from TOML table when it successfully parses a field
+  *   - it reads TOML array by mutating index
   *   - it accumulates error address as a list
   *
   * @param tomlValue
@@ -145,6 +145,9 @@ private final case class Context(
   def withError(address: List[String], message: String) = copy(
     error = (address, message)
   )
+
+  /** It removes the first label from the list and continue with remaining labels
+    */
   def continueWithTail = copy(
     tomlValue,
     tail,
