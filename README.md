@@ -17,7 +17,7 @@ This project is an updated and maintained fork of the [original sparsetech/toml-
     - [Dependencies](#dependencies)
   - [Examples](#examples)
     - [AST parsing](#ast-parsing)
-    - [Codec derivation (Scala 2 only)](#codec-derivation-scala-2-only)
+    - [Codec derivation](#codec-derivation)
       - [Tables](#tables)
       - [Table lists](#table-lists)
       - [Optional values](#optional-values)
