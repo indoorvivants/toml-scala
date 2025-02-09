@@ -8,7 +8,10 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import fastparse._
 import fastparse.Parsed.{Failure, Success}
 
-class DateGenSpec extends AnyPropSpec with ScalaCheckPropertyChecks with Matchers {
+class DateGenSpec
+    extends AnyPropSpec
+    with ScalaCheckPropertyChecks
+    with Matchers {
   import TestHelpers._
 
   import org.scalacheck.Shrink

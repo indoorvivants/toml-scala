@@ -35,18 +35,18 @@ object Generators {
     def intersperse(x: String, sep: String) = x.toCharArray.mkString(sep)
 
     def validLongGen: Gen[String] = for {
-      l    <- Gen.posNum[Long]
+      l <- Gen.posNum[Long]
       sign <- Gen.oneOf(signChars)
-      us   <- Gen.oneOf(List("", "_"))
+      us <- Gen.oneOf(List("", "_"))
     } yield sign + intersperse(l.toString, us)
 
     def validDoubleGen: Gen[String] = for {
       sign <- Gen.oneOf(signChars)
-      d    <- Gen.posNum[Double]
-      l    <- validLongGen
-      l2   <- validLongGen
-      e    <- Gen.oneOf("e", "E")
-      fs   <- Gen.oneOf(sign + d.toString, l + e + l2)
+      d <- Gen.posNum[Double]
+      l <- validLongGen
+      l2 <- validLongGen
+      e <- Gen.oneOf("e", "E")
+      fs <- Gen.oneOf(sign + d.toString, l + e + l2)
     } yield fs
   }
 
@@ -57,7 +57,7 @@ object Generators {
       case x       => sys.error(s"$x is not either true or false.")
     }
 
-    def validBoolGen  : Gen[String] = Gen.oneOf("true", "false")
+    def validBoolGen: Gen[String] = Gen.oneOf("true", "false")
     def invalidBoolGen: Gen[String] = Gen.oneOf("True", "False")
   }
 
@@ -65,8 +65,8 @@ object Generators {
     /* Generate comments in a low probability */
     def commentGen: Gen[String] = for {
       strChunk <- Gen.alphaStr
-      rand     <- Gen.chooseNum(1, 10)
-      nl       <- Gen.oneOf(CrLf, Lf)
+      rand <- Gen.chooseNum(1, 10)
+      nl <- Gen.oneOf(CrLf, Lf)
     } yield if (rand <= 3) "#" + strChunk + nl else ""
   }
 
@@ -74,8 +74,8 @@ object Generators {
     import Strings._
     import Numbers._
 
-    val openChars  = List("[", "[\n")
-    val seps       = List(",\n", ",")
+    val openChars = List("[", "[\n")
+    val seps = List(",\n", ",")
     val closeChars = List("]", "\n]")
 
     def arrayFormat(s: Seq[_], fs: (String, String, String)): String =
@@ -92,7 +92,7 @@ object Generators {
 
   object Dates {
     def pad(n: Int, s: String): String =
-      if(s.length < n) ("0" * (n - s.length)) + s else s
+      if (s.length < n) ("0" * (n - s.length)) + s else s
     def genNum(digits: Int, from: Int, to: Int): Gen[String] =
       chooseNum(from, to).map(n => pad(digits, n.toString))
 
@@ -133,32 +133,35 @@ object Generators {
       validBoolGen
     ).suchThat(_.nonEmpty)
 
-    def bareKeyGen = Gen.someOf(
-      Gen.alphaLowerChar,
-      Gen.alphaUpperChar,
-      Gen.alphaNumChar,
-      Gen.oneOf('_', '-')
-    ).suchThat(_.nonEmpty).map(_.mkString)
+    def bareKeyGen = Gen
+      .someOf(
+        Gen.alphaLowerChar,
+        Gen.alphaUpperChar,
+        Gen.alphaNumChar,
+        Gen.oneOf('_', '-')
+      )
+      .suchThat(_.nonEmpty)
+      .map(_.mkString)
 
     def pairGen: Gen[String] = for {
-      key   <- oneOf(doubleQuoteStrGen, bareKeyGen)
+      key <- oneOf(doubleQuoteStrGen, bareKeyGen)
       value <- valueGen
-      sp    <- oneOf(sps)
-      i     <- chooseNum(0, 5)
+      sp <- oneOf(sps)
+      i <- chooseNum(0, 5)
     } yield pairFormat(key, value, sp * i)
 
     def pairWithCommentsGen: Gen[String] = for {
-      p                  <- pairGen
+      p <- pairGen
       commInPreviousLine <- commentGen
-      commInSameLine     <- commentGen
+      commInSameLine <- commentGen
     } yield commInPreviousLine + p + commInSameLine
 
     def tableDefGen: Gen[String] = for {
       labels <- nonEmptyListOf(doubleQuoteStrGen)
-      sp     <- oneOf(sps)
-      i      <- chooseNum(0, 10)
-      sep    <- const(sp * i + "." + sp * i)
-    } yield idTableFormat(labels, ("[", sep , "]"))
+      sp <- oneOf(sps)
+      i <- chooseNum(0, 10)
+      sep <- const(sp * i + "." + sp * i)
+    } yield idTableFormat(labels, ("[", sep, "]"))
 
     def tableGen = for {
       tdef <- tableDefGen

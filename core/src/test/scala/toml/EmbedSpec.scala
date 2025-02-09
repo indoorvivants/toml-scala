@@ -17,8 +17,7 @@ class EmbedSpec extends AnyFunSuite {
         |a = 1
       """.stripMargin
     val node2 = fastparse.parse(pairs, Rules.root(_)).get.value
-    assert(Embed.root(node2) == Right(Tbl(Map(
-      "a" -> Num(1), "b" -> Num(2)))))
+    assert(Embed.root(node2) == Right(Tbl(Map("a" -> Num(1), "b" -> Num(2)))))
   }
 
   test("Simple table") {
@@ -28,8 +27,10 @@ class EmbedSpec extends AnyFunSuite {
         |a = 1
       """.stripMargin
     val node = fastparse.parse(table, Rules.root(_)).get.value
-    assert(Embed.root(node) ==
-      Right(Tbl(Map("table" -> Tbl(Map("a" -> Num(1)))))))
+    assert(
+      Embed.root(node) ==
+        Right(Tbl(Map("table" -> Tbl(Map("a" -> Num(1))))))
+    )
   }
 
   test("Pair and table") {
@@ -40,8 +41,10 @@ class EmbedSpec extends AnyFunSuite {
         |b = 2
       """.stripMargin
     val node = fastparse.parse(table, Rules.root(_)).get.value
-    assert(Embed.root(node) ==
-      Right(Tbl(Map("a" -> Num(1), "table" -> Tbl(Map("b" -> Num(2)))))))
+    assert(
+      Embed.root(node) ==
+        Right(Tbl(Map("a" -> Num(1), "table" -> Tbl(Map("b" -> Num(2))))))
+    )
   }
 
   test("Nested table") {
@@ -51,10 +54,22 @@ class EmbedSpec extends AnyFunSuite {
         |value = 42
       """.stripMargin
     val node = fastparse.parse(table, Rules.root(_)).get.value
-    assert(Embed.root(node) ==
-      Right(Tbl(Map("table" ->
-        Tbl(Map("table2" ->
-          Tbl(Map("value" -> Num(42)))))))))
+    assert(
+      Embed.root(node) ==
+        Right(
+          Tbl(
+            Map(
+              "table" ->
+                Tbl(
+                  Map(
+                    "table2" ->
+                      Tbl(Map("value" -> Num(42)))
+                  )
+                )
+            )
+          )
+        )
+    )
   }
 
   test("Two nested tables") {
@@ -66,11 +81,21 @@ class EmbedSpec extends AnyFunSuite {
         |value = 42
       """.stripMargin
     val node = fastparse.parse(table, Rules.root(_)).get.value
-    assert(Embed.root(node) ==
-      Right(Tbl(Map(
-        "table" -> Tbl(Map(
-          "table2" -> Tbl(Map("value" -> Num(23))),
-          "table3" -> Tbl(Map("value" -> Num(42)))))))))
+    assert(
+      Embed.root(node) ==
+        Right(
+          Tbl(
+            Map(
+              "table" -> Tbl(
+                Map(
+                  "table2" -> Tbl(Map("value" -> Num(23))),
+                  "table3" -> Tbl(Map("value" -> Num(42)))
+                )
+              )
+            )
+          )
+        )
+    )
   }
 
   test("Empty nested tables") {
@@ -81,13 +106,22 @@ class EmbedSpec extends AnyFunSuite {
         |value = 42
       """.stripMargin
     val node = fastparse.parse(table, Rules.root(_)).get.value
-    assert(Embed.root(node) ==
-      Right(Tbl(Map(
-        "table" -> Tbl(Map(
-          "table2" -> Tbl(Map.empty),
-          "table3" -> Tbl(Map("value" -> Num(42)))))))))
+    assert(
+      Embed.root(node) ==
+        Right(
+          Tbl(
+            Map(
+              "table" -> Tbl(
+                Map(
+                  "table2" -> Tbl(Map.empty),
+                  "table3" -> Tbl(Map("value" -> Num(42)))
+                )
+              )
+            )
+          )
+        )
+    )
   }
-
 
   test("Inline table list") {
     val tableList =
@@ -97,12 +131,22 @@ class EmbedSpec extends AnyFunSuite {
         |           { x = 2, y = 4, z = 8 } ]
       """.stripMargin
     val node = fastparse.parse(tableList, Rules.root(_)).get.value
-    assert(Embed.root(node) ==
-      Right(Tbl(Map(
-        "points" -> Arr(List(
-          Tbl(Map("x" -> Num(1), "y" -> Num(2), "z" -> Num(3))),
-          Tbl(Map("x" -> Num(7), "y" -> Num(8), "z" -> Num(9))),
-          Tbl(Map("x" -> Num(2), "y" -> Num(4), "z" -> Num(8)))))))))
+    assert(
+      Embed.root(node) ==
+        Right(
+          Tbl(
+            Map(
+              "points" -> Arr(
+                List(
+                  Tbl(Map("x" -> Num(1), "y" -> Num(2), "z" -> Num(3))),
+                  Tbl(Map("x" -> Num(7), "y" -> Num(8), "z" -> Num(9))),
+                  Tbl(Map("x" -> Num(2), "y" -> Num(4), "z" -> Num(8)))
+                )
+              )
+            )
+          )
+        )
+    )
   }
 
   test("Array") {
@@ -120,11 +164,32 @@ class EmbedSpec extends AnyFunSuite {
       """.stripMargin
 
     val node = fastparse.parse(array, Rules.root(_)).get.value
-    assert(Embed.root(node) == Right(Tbl(Map(
-      "products" -> Arr(List(
-        Tbl(Map("name" -> Str("Hammer"), "sku" -> Num(738594937), "colour" -> Str("blue"))),
-        Tbl(Map("name" -> Str("Nail")  , "sku" -> Num(284758393), "colour" -> Str("grey")))
-      ))))))
+    assert(
+      Embed.root(node) == Right(
+        Tbl(
+          Map(
+            "products" -> Arr(
+              List(
+                Tbl(
+                  Map(
+                    "name" -> Str("Hammer"),
+                    "sku" -> Num(738594937),
+                    "colour" -> Str("blue")
+                  )
+                ),
+                Tbl(
+                  Map(
+                    "name" -> Str("Nail"),
+                    "sku" -> Num(284758393),
+                    "colour" -> Str("grey")
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
   }
 
   test("Array with empty items") {
@@ -143,12 +208,27 @@ class EmbedSpec extends AnyFunSuite {
       """.stripMargin
 
     val node = fastparse.parse(array, Rules.root(_)).get.value
-    assert(Embed.root(node) == Right(Tbl(Map(
-      "products" -> Arr(List(
-        Tbl(Map("name" -> Str("Hammer"), "sku" -> Num(738594937))),
-        Tbl(Map.empty),
-        Tbl(Map("name" -> Str("Nail"), "sku" -> Num(284758393), "colour" -> Str("grey")))
-      ))))))
+    assert(
+      Embed.root(node) == Right(
+        Tbl(
+          Map(
+            "products" -> Arr(
+              List(
+                Tbl(Map("name" -> Str("Hammer"), "sku" -> Num(738594937))),
+                Tbl(Map.empty),
+                Tbl(
+                  Map(
+                    "name" -> Str("Nail"),
+                    "sku" -> Num(284758393),
+                    "colour" -> Str("grey")
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
   }
 
   test("Nested array") {
@@ -175,26 +255,44 @@ class EmbedSpec extends AnyFunSuite {
       """.stripMargin
 
     val node = fastparse.parse(array, Rules.root(_)).get.value
-    assert(Embed.root(node) == Right(Tbl(Map(
-      "fruit" -> Arr(List(
-        Tbl(Map(
-          "name" -> Str("apple"),
-          "physical" -> Tbl(Map(
-            "colour" -> Str("red"),
-            "shape"  -> Str("round")
-          )),
-          "variety" -> Arr(List(
-            Tbl(Map("name" -> Str("red delicious"))),
-            Tbl(Map("name" -> Str("granny smith")))
-          ))
-        )),
-        Tbl(Map(
-          "name" -> Str("banana"),
-          "variety" -> Arr(List(
-            Tbl(Map("name" -> Str("plantain")))
-          ))
-        ))
-      ))
-    ))))
+    assert(
+      Embed.root(node) == Right(
+        Tbl(
+          Map(
+            "fruit" -> Arr(
+              List(
+                Tbl(
+                  Map(
+                    "name" -> Str("apple"),
+                    "physical" -> Tbl(
+                      Map(
+                        "colour" -> Str("red"),
+                        "shape" -> Str("round")
+                      )
+                    ),
+                    "variety" -> Arr(
+                      List(
+                        Tbl(Map("name" -> Str("red delicious"))),
+                        Tbl(Map("name" -> Str("granny smith")))
+                      )
+                    )
+                  )
+                ),
+                Tbl(
+                  Map(
+                    "name" -> Str("banana"),
+                    "variety" -> Arr(
+                      List(
+                        Tbl(Map("name" -> Str("plantain")))
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
   }
 }

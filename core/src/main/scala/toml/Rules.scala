@@ -4,8 +4,7 @@ import fastparse._
 import NoWhitespace._
 
 private[toml] case class NamedFunction[T, V](f: T => V, name: String)
-  extends (T => V)
-{
+    extends (T => V) {
   def apply(t: T) = f(t)
   override def toString: String = name
 }
@@ -23,29 +22,30 @@ class Rules(extensions: Set[Extension]) extends PlatformRules {
 
   val UntilNewline = NamedFunction(!CrLf.contains(_: Char), "UntilNewline")
 
-  def newLine[$: P]    = P(StringIn(CrLf, Lf))
+  def newLine[$: P] = P(StringIn(CrLf, Lf))
   def charsChunk[$: P] = P(CharsWhile(UntilNewline))
-  def comment[$: P]    = P("#" ~ charsChunk.? ~ &(newLine | End))
+  def comment[$: P] = P("#" ~ charsChunk.? ~ &(newLine | End))
   def whitespace[$: P] = P(CharIn(WhitespaceChars))
 
-  def skip[$: P]   = P(NoCut(NoTrace((whitespace | comment | newLine).rep)))
+  def skip[$: P] = P(NoCut(NoTrace((whitespace | comment | newLine).rep)))
   def skipWs[$: P] = P(NoCut(NoTrace(whitespace.rep)))
 
   def letter[$: P] = P(CharIn(LettersRange))
-  def digit[$: P]  = P(CharIn(NumbersRange))
+  def digit[$: P] = P(CharIn(NumbersRange))
   def digits[$: P] = P(digit.rep(1))
-  def dash[$: P]   = P(CharIn(Dashes))
+  def dash[$: P] = P(CharIn(Dashes))
 
   val StringChars = NamedFunction(!"\"\\".contains(_: Char), "StringChars")
   def strChars[$: P] = P(CharsWhile(StringChars))
 
-
-  def hexDigit[$: P]       = P(CharIn("0-9", "a-f", "A-F"))
-  def unicodeEsc[$: P]     = P("u" ~ hexDigit.rep(4))
+  def hexDigit[$: P] = P(CharIn("0-9", "a-f", "A-F"))
+  def unicodeEsc[$: P] = P("u" ~ hexDigit.rep(4))
   def unicodeEscLong[$: P] = P("U" ~ hexDigit.rep(8))
-  def escape[$: P]         = P("\\" ~ (
-    CharIn("\"/\\\\bfnrt") | unicodeEsc | unicodeEscLong
-  ))
+  def escape[$: P] = P(
+    "\\" ~ (
+      CharIn("\"/\\\\bfnrt") | unicodeEsc | unicodeEscLong
+    )
+  )
 
   def basicStr[$: P]: P[Value.Str] =
     P(DoubleQuote.toString ~/ (escape | strChars).rep.! ~ DoubleQuote.toString)
@@ -53,29 +53,30 @@ class Rules(extensions: Set[Extension]) extends PlatformRules {
   def literalStr[$: P]: P[Value.Str] =
     P(
       SingleQuote.toString ~/
-      (!SingleQuote.toString ~ AnyChar).rep.! ~
-      SingleQuote.toString
+        (!SingleQuote.toString ~ AnyChar).rep.! ~
+        SingleQuote.toString
     ).map(Value.Str.apply)
   def multiLineBasicStr[$: P]: P[Value.Str] =
     P(
       MultiLineDoubleQuote ~/
-      newLine.? ~
-      (!MultiLineDoubleQuote ~ AnyChar).rep.! ~
-      MultiLineDoubleQuote
+        newLine.? ~
+        (!MultiLineDoubleQuote ~ AnyChar).rep.! ~
+        MultiLineDoubleQuote
     ).map(str => Value.Str(Unescape.unescapeJavaString(str)))
   def multiLineLiteralStr[$: P]: P[Value.Str] =
     P(
       MultiLineSingleQuote ~/
-      newLine.? ~
-      (!MultiLineSingleQuote ~ AnyChar).rep.! ~
-      MultiLineSingleQuote
+        newLine.? ~
+        (!MultiLineSingleQuote ~ AnyChar).rep.! ~
+        MultiLineSingleQuote
     ).map(Value.Str.apply)
 
   def string[$: P]: P[Value.Str] = P(
-    multiLineBasicStr   |
-    multiLineLiteralStr |
-    basicStr            |
-    literalStr)
+    multiLineBasicStr |
+      multiLineLiteralStr |
+      basicStr |
+      literalStr
+  )
 
   def rmUnderscore(s: String) = s.replace("_", "")
 
@@ -88,20 +89,22 @@ class Rules(extensions: Set[Extension]) extends PlatformRules {
   def double[$: P]: P[Value.Real] =
     P(
       sign.?.! ~
-      (
-        P("inf").map(_ => Double.PositiveInfinity) |
-        P("nan").map(_ => Double.NaN)              |
-        P(integral ~ (
-          (fractional ~ exponent) |
-          fractional              |
-          exponent
-        )).!.map(s => rmUnderscore(s).toDouble)
-      )
+        (
+          P("inf").map(_ => Double.PositiveInfinity) |
+            P("nan").map(_ => Double.NaN) |
+            P(
+              integral ~ (
+                (fractional ~ exponent) |
+                  fractional |
+                  exponent
+              )
+            ).!.map(s => rmUnderscore(s).toDouble)
+        )
     ).map { case (sign, value) =>
       if (sign == "-") Value.Real(-value) else Value.Real(value)
     }
 
-  def `true`[$: P]  = P("true") .map(_ => Value.Bool(true))
+  def `true`[$: P] = P("true").map(_ => Value.Bool(true))
   def `false`[$: P] = P("false").map(_ => Value.Bool(false))
   def boolean[$: P] = P(`true` | `false`)
 
@@ -115,10 +118,10 @@ class Rules(extensions: Set[Extension]) extends PlatformRules {
       .map(l => Value.Arr(l.toList))
   def inlineTable[$: P]: P[Value.Tbl] =
     (if (extensions.contains(MultiLineInlineTables))
-      P("{" ~ skip ~ pair.rep(sep = skip ~ "," ~ skip) ~ ",".? ~ skip ~ "}")
+       P("{" ~ skip ~ pair.rep(sep = skip ~ "," ~ skip) ~ ",".? ~ skip ~ "}")
      else
-      P("{" ~ skipWs ~ pair.rep(sep = skipWs ~ "," ~ skipWs) ~ skipWs ~ "}")
-    ).map(p => Value.Tbl(p.toMap))
+       P("{" ~ skipWs ~ pair.rep(sep = skipWs ~ "," ~ skipWs) ~ skipWs ~ "}"))
+      .map(p => Value.Tbl(p.toMap))
 
   def tableIds[$: P]: P[Seq[String]] =
     P(validKey.rep(min = 1, sep = skipWs ~ "." ~ skipWs).map(_.toSeq))

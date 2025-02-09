@@ -9,7 +9,10 @@ import fastparse.Parsed.{Failure, Success}
 
 import scala.util.Try
 
-class GeneratedSpec extends AnyPropSpec with ScalaCheckPropertyChecks with Matchers {
+class GeneratedSpec
+    extends AnyPropSpec
+    with ScalaCheckPropertyChecks
+    with Matchers {
   import TestHelpers._
 
   property("Parse arrays") {
@@ -30,7 +33,8 @@ class GeneratedSpec extends AnyPropSpec with ScalaCheckPropertyChecks with Match
   ignore("Parse doubles") {
     import Generators.Numbers._
     forAll(validDoubleGen) { (s: String) =>
-      val expected = Success(Value.Real(Rules.rmUnderscore(s).toDouble), s.length)
+      val expected =
+        Success(Value.Real(Rules.rmUnderscore(s).toDouble), s.length)
       parse(s, Rules.elem(_)) shouldBe expected
     }
   }

@@ -17,9 +17,9 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
   }
 
   test("Strings") {
-     val elem = fastparse.parse("\"test\"", Rules.elem(_)).get.value
-     val result = new Toml.CodecHelperValue[String].apply(elem)
-     assert(result == Right("test"))
+    val elem = fastparse.parse("\"test\"", Rules.elem(_)).get.value
+    val result = new Toml.CodecHelperValue[String].apply(elem)
+    assert(result == Right("test"))
   }
 
   test("Strings (2)") {
@@ -32,21 +32,24 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     assert(Toml.parseAs[Pair](pair2) == Right(Pair("")))
 
     val pair3 = """a = 'Tom "Dubs" Preston-Werner'"""
-    assert(Toml.parseAs[Pair](pair3) == Right(Pair("Tom \"Dubs\" Preston-Werner")))
+    assert(
+      Toml.parseAs[Pair](pair3) == Right(Pair("Tom \"Dubs\" Preston-Werner"))
+    )
 
     val pair4 =
       """a = '''
         |I [dw]on't need \d{2} apples'''""".stripMargin
-    assert(Toml.parseAs[Pair](pair4) == Right(Pair(
-      """I [dw]on't need \d{2} apples""")))
+    assert(
+      Toml.parseAs[Pair](pair4) == Right(
+        Pair("""I [dw]on't need \d{2} apples""")
+      )
+    )
 
     val pair5 = "a = \"\"\"\nRoses\nViolets\"\"\""
-    assert(Toml.parseAs[Pair](pair5) == Right(Pair(
-      "Roses\nViolets")))
+    assert(Toml.parseAs[Pair](pair5) == Right(Pair("Roses\nViolets")))
 
     val pair6 = "a = \"Roses\\nViolets\""
-    assert(Toml.parseAs[Pair](pair6) == Right(Pair(
-      "Roses\nViolets")))
+    assert(Toml.parseAs[Pair](pair6) == Right(Pair("Roses\nViolets")))
   }
 
   test("Lists") {
@@ -106,9 +109,9 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
   }
 
   test("Table (3)") {
-    case class Table2(value : Int   )
-    case class Table (table2: Table2)
-    case class Root  (table : Table )
+    case class Table2(value: Int)
+    case class Table(table2: Table2)
+    case class Root(table: Table)
 
     val table =
       """
@@ -139,12 +142,11 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     assert(Toml.parseAs[Root](table) == Right(Root(1, None)))
   }
 
-
   test("Table (6)") {
-    case class Table3(value : Int)
-    case class Table2(value : Int)
-    case class Table (table2: Table2, table3: Table3)
-    case class Root  (table : Table)
+    case class Table3(value: Int)
+    case class Table2(value: Int)
+    case class Table(table2: Table2, table3: Table3)
+    case class Root(table: Table)
 
     val table =
       """
@@ -153,8 +155,10 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
         |[table.table3]
         |value = 42
       """.stripMargin
-    assert(Toml.parseAs[Root](table)
-       == Right(Root(Table(Table2(23), Table3(42)))))
+    assert(
+      Toml.parseAs[Root](table)
+        == Right(Root(Table(Table2(23), Table3(42))))
+    )
   }
 
   test("Unknown table") {
@@ -189,10 +193,11 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     case class Point(x: Int, y: Int, z: Int)
     case class Root(points: List[Point])
 
-    assert(Toml.parseAs[Root](tableList) == Right(Root(List(
-      Point(1, 2, 3),
-      Point(7, 8, 9),
-      Point(2, 4, 8)))))
+    assert(
+      Toml.parseAs[Root](tableList) == Right(
+        Root(List(Point(1, 2, 3), Point(7, 8, 9), Point(2, 4, 8)))
+      )
+    )
   }
 
   test("Inline list of tables with unknown field") {
@@ -205,8 +210,10 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     case class Point(x: Int, y: Int)
     case class Root(points: List[Point])
 
-    assert(Toml.parseAs[Root](tableList) ==
-           Left((List("points", "#2", "z"), "Unknown field")))
+    assert(
+      Toml.parseAs[Root](tableList) ==
+        Left((List("points", "#2", "z"), "Unknown field"))
+    )
   }
 
   test("Inline list of tuples") {
@@ -220,10 +227,11 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     case class Point(x: Int, y: String, z: Int)
     case class Root(points: List[Point])
 
-    assert(Toml.parseAs[Root](tableList) == Right(Root(List(
-      Point(1, "2", 3),
-      Point(7, "8", 9),
-      Point(2, "4", 8)))))
+    assert(
+      Toml.parseAs[Root](tableList) == Right(
+        Root(List(Point(1, "2", 3), Point(7, "8", 9), Point(2, "4", 8)))
+      )
+    )
   }
 
   test("Inline list of tuples (2)") {
@@ -232,8 +240,10 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     case class Point(x: Int)
     case class Root(points: List[Point])
 
-    assert(Toml.parseAs[Root](tableList) ==
-      Left((List("points", "#1"), "Cannot resolve `x`")))
+    assert(
+      Toml.parseAs[Root](tableList) ==
+        Left((List("points", "#1"), "Cannot resolve `x`"))
+    )
   }
 
   test("Inline list of tuples with default values") {
@@ -242,21 +252,23 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     case class Point(x: Int = 23, y: String = "y", z: Int = 42)
     case class Root(points: List[Point])
 
-    assert(Toml.parseAs[Root](tableList) == Right(Root(List(
-      Point(1, "2", 42),
-      Point(7, "y", 42),
-      Point(23, "y", 42)))))
+    assert(
+      Toml.parseAs[Root](tableList) == Right(
+        Root(List(Point(1, "2", 42), Point(7, "y", 42), Point(23, "y", 42)))
+      )
+    )
   }
-    test("Inline list of tuples with default values (2)") {
+  test("Inline list of tuples with default values (2)") {
     val tableList = """points = [ [ 1, "2" ], [ 7 ], [ ] ]"""
 
     case class Point(x: Int = 23, y: Option[String])
     case class Root(points: List[Point])
 
-    assert(Toml.parseAs[Root](tableList) == Right(Root(List(
-      Point(1, Some("2")),
-      Point(7, None),
-      Point(23, None)))))
+    assert(
+      Toml.parseAs[Root](tableList) == Right(
+        Root(List(Point(1, Some("2")), Point(7, None), Point(23, None)))
+      )
+    )
   }
 
   test("Inline list of tuples with default values (3)") {
@@ -265,10 +277,17 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     case class Point(x: Option[Int] = Some(23), y: Option[String])
     case class Root(points: List[Point])
 
-    assert(Toml.parseAs[Root](tableList) == Right(Root(List(
-      Point(Some(1), Some("2")),
-      Point(Some(7), None),
-      Point(Some(23), None)))))
+    assert(
+      Toml.parseAs[Root](tableList) == Right(
+        Root(
+          List(
+            Point(Some(1), Some("2")),
+            Point(Some(7), None),
+            Point(Some(23), None)
+          )
+        )
+      )
+    )
   }
 
   test("Inline list of tuples with default values (4)") {
@@ -277,10 +296,12 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     case class Point(x: Option[Int] = Some(23))
     case class Root(points: List[Point])
 
-    assert(Toml.parseAs[Root](tableList) == Left((List("points", "#1"),
-      "Too many elements; remove Str(2)")))
+    assert(
+      Toml.parseAs[Root](tableList) == Left(
+        (List("points", "#1"), "Too many elements; remove Str(2)")
+      )
+    )
   }
-
 
   test("Inline list of tuples with default values (5)") {
     val tableList = """points = [ [ 1, "2" ], [ ], [ 3, 4 ] ]"""
@@ -288,10 +309,11 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     case class Point(x: Int = 23, y: Option[String])
     case class Root(points: List[Point])
 
-    assert(Toml.parseAs[Root](tableList) ==
-      Left((List("points", "#3", "#2"), "String expected, Num(4) provided")))
+    assert(
+      Toml.parseAs[Root](tableList) ==
+        Left((List("points", "#3", "#2"), "String expected, Num(4) provided"))
+    )
   }
-
 
   test("Nested inline list") {
     val tableList =
@@ -301,10 +323,15 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     case class Point(x: Int = 23, ys: List[Y] = List())
     case class Root(points: List[Point])
 
-    assert(Toml.parseAs[Root](tableList) ==
-      Left((
-        List("points", "#3", "#2", "#1", "value"),
-        "String expected, Num(4) provided")))
+    assert(
+      Toml.parseAs[Root](tableList) ==
+        Left(
+          (
+            List("points", "#3", "#2", "#1", "value"),
+            "String expected, Num(4) provided"
+          )
+        )
+    )
   }
 
   test("Nested inline list (2)") {
@@ -314,16 +341,19 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     case class Point(x: Int = 23, ys: List[Y])
     case class Root(points: List[Point])
 
-    assert(Toml.parseAs[Root](tableList) ==
-      Left((
-        List("points", "#2", "#2", "#1", "#1"),
-        "String expected, Num(4) provided")))
+    assert(
+      Toml.parseAs[Root](tableList) ==
+        Left(
+          (
+            List("points", "#2", "#2", "#1", "#1"),
+            "String expected, Num(4) provided"
+          )
+        )
+    )
   }
 
   test("Array of tables (1)") {
-    case class Product(name  : String,
-                       sku   : Int,
-                       colour: String)
+    case class Product(name: String, sku: Int, colour: String)
     case class Root(products: List[Product])
 
     val array =
@@ -339,14 +369,23 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
         |colour = "grey"
       """.stripMargin
 
-    assert(Toml.parseAs[Root](array) == Right(Root(List(
-      Product("Hammer", 738594937, "blue"),
-      Product("Nail", 284758393, "grey")))))
+    assert(
+      Toml.parseAs[Root](array) == Right(
+        Root(
+          List(
+            Product("Hammer", 738594937, "blue"),
+            Product("Nail", 284758393, "grey")
+          )
+        )
+      )
+    )
   }
-    test("Array of tables (2)") {
-    case class Product(name  : Option[String] = Option.empty,
-                       sku   : Option[Int]    = Option.empty,
-                       colour: Option[String] = Option.empty)
+  test("Array of tables (2)") {
+    case class Product(
+        name: Option[String] = Option.empty,
+        sku: Option[Int] = Option.empty,
+        colour: Option[String] = Option.empty
+    )
     case class Root(products: List[Product])
 
     val array =
@@ -363,18 +402,27 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
         |colour = "grey"
       """.stripMargin
 
-    assert(Toml.parseAs[Root](array) == Right(Root(List(
-      Product(Some("Hammer"), Some(738594937), None),
-      Product(None, None, None),
-      Product(Some("Nail"), Some(284758393), Some("grey"))))))
+    assert(
+      Toml.parseAs[Root](array) == Right(
+        Root(
+          List(
+            Product(Some("Hammer"), Some(738594937), None),
+            Product(None, None, None),
+            Product(Some("Nail"), Some(284758393), Some("grey"))
+          )
+        )
+      )
+    )
   }
 
   test("Array of tables (3)") {
     case class Physical(colour: String, shape: String)
     case class Variety(name: String)
-    case class Fruit(name: String,
-                     physical: Option[Physical],
-                     variety: List[Variety])
+    case class Fruit(
+        name: String,
+        physical: Option[Physical],
+        variety: List[Variety]
+    )
     case class Root(fruit: List[Fruit])
 
     val array =
@@ -399,12 +447,23 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
         |    name = "plantain"
       """.stripMargin
 
-    assert(Toml.parseAs[Root](array) == Right(Root(List(
-      Fruit("apple", Some(Physical("red", "round")), List(
-        Variety("red delicious"),
-        Variety("granny smith")
-      )),
-      Fruit("banana", None, List(Variety("plantain")))))))
+    assert(
+      Toml.parseAs[Root](array) == Right(
+        Root(
+          List(
+            Fruit(
+              "apple",
+              Some(Physical("red", "round")),
+              List(
+                Variety("red delicious"),
+                Variety("granny smith")
+              )
+            ),
+            Fruit("banana", None, List(Variety("plantain")))
+          )
+        )
+      )
+    )
   }
 
   test("Table codec") {
@@ -414,26 +473,34 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
         |b = 42
       """.stripMargin
 
-    assert(Toml.parseAsValue[Map[String, Int]](array) == Right(Map(
-      "a" -> 23,
-      "b" -> 42
-    )))
+    assert(
+      Toml.parseAsValue[Map[String, Int]](array) == Right(
+        Map(
+          "a" -> 23,
+          "b" -> 42
+        )
+      )
+    )
   }
 
   test("Error handling") {
     case class Root(a: String)
 
     val toml = "a = 1"
-    assert(Toml.parseAs[Root](toml) ==
-      Left((List("a"), "String expected, Num(1) provided")))
+    assert(
+      Toml.parseAs[Root](toml) ==
+        Left((List("a"), "String expected, Num(1) provided"))
+    )
   }
 
   test("Error handling (2)") {
     case class Root(a: String)
 
     val toml = ""
-    assert(Toml.parseAs[Root](toml) ==
-      Left((List.empty, "Cannot resolve `a`")))
+    assert(
+      Toml.parseAs[Root](toml) ==
+        Left((List.empty, "Cannot resolve `a`"))
+    )
   }
 
   test("Error handling (3)") {
@@ -441,8 +508,10 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     case class Root(a: A)
 
     val toml = "a = 1"
-    assert(Toml.parseAs[Root](toml) ==
-      Left((List("a"), "Cannot resolve `b`")))
+    assert(
+      Toml.parseAs[Root](toml) ==
+        Left((List("a"), "Cannot resolve `b`"))
+    )
   }
 
   test("Error handling (4)") {
@@ -451,8 +520,10 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     case class Root(a: A)
 
     val toml = "a = { b = 42 }"
-    assert(Toml.parseAs[Root](toml) ==
-      Left((List("a", "b"), "Cannot resolve `c`")))
+    assert(
+      Toml.parseAs[Root](toml) ==
+        Left((List("a", "b"), "Cannot resolve `c`"))
+    )
   }
 
   test("Error handling (5)") {
@@ -466,19 +537,21 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
         |b = { }
       """.stripMargin
 
-    assert(Toml.parseAs[Root](toml) ==
-      Left((List("b"), "Cannot resolve `value`")))
+    assert(
+      Toml.parseAs[Root](toml) ==
+        Left((List("b"), "Cannot resolve `value`"))
+    )
   }
-
 
   test("Error handling (7)") {
     case class A(idx: Int)
     case class Root(a: List[A])
     val toml = """a = [ [ 1 ], [ "2" ] ]"""
-    assert(Toml.parseAs[Root](toml) ==
-           Left((List("a", "#2", "#1"), "Int expected, Str(2) provided")))
+    assert(
+      Toml.parseAs[Root](toml) ==
+        Left((List("a", "#2", "#1"), "Int expected, Str(2) provided"))
+    )
   }
-
 
   test("Default parameters (1)") {
     case class Root(a: Int, b: Int = 42)

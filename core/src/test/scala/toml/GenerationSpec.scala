@@ -21,9 +21,7 @@ class GenerationSpec extends AnyFunSuite {
   }
 
   test("Two pairs") {
-    val root = Root(List(
-      Pair("b", Num(2)),
-      Pair("a", Num(1))))
+    val root = Root(List(Pair("b", Num(2)), Pair("a", Num(1))))
 
     val pairs =
       """b = 2
@@ -82,10 +80,9 @@ class GenerationSpec extends AnyFunSuite {
   }
 
   test("Pair and table") {
-    val root = Root(List(
-      Pair("a", Num(1)),
-      NamedTable(
-        List("table"), List("b" -> Num(2)))))
+    val root = Root(
+      List(Pair("a", Num(1)), NamedTable(List("table"), List("b" -> Num(2))))
+    )
 
     val table =
       """
@@ -99,10 +96,13 @@ class GenerationSpec extends AnyFunSuite {
   }
 
   test("Two tables") {
-    val root = Root(List(
-      Pair("a", Num(1)),
-      NamedTable(List("table"), List("b" -> Num(2))),
-      NamedTable(List("table2"), List("c" -> Num(3)))))
+    val root = Root(
+      List(
+        Pair("a", Num(1)),
+        NamedTable(List("table"), List("b" -> Num(2))),
+        NamedTable(List("table2"), List("c" -> Num(3)))
+      )
+    )
 
     val table =
       """
@@ -119,8 +119,8 @@ class GenerationSpec extends AnyFunSuite {
   }
 
   test("Nested table") {
-    val root = Root(List(
-      NamedTable(List("table", "table2"), List("value" -> Num(42)))))
+    val root =
+      Root(List(NamedTable(List("table", "table2"), List("value" -> Num(42)))))
 
     val table =
       """
@@ -132,15 +132,25 @@ class GenerationSpec extends AnyFunSuite {
   }
 
   test("Regular list") {
-    val root = Root(List(Pair("scalaOptions", Arr(List(
-      "-encoding", "UTF-8",
-      "-unchecked",
-      "-deprecation",
-      "-Xfuture",
-      "-Yno-adapted-args",
-      "-Ywarn-numeric-widen",
-      "-feature"
-    ).map(Str.apply)))))
+    val root = Root(
+      List(
+        Pair(
+          "scalaOptions",
+          Arr(
+            List(
+              "-encoding",
+              "UTF-8",
+              "-unchecked",
+              "-deprecation",
+              "-Xfuture",
+              "-Yno-adapted-args",
+              "-Ywarn-numeric-widen",
+              "-feature"
+            ).map(Str.apply)
+          )
+        )
+      )
+    )
 
     val table =
       """
@@ -160,11 +170,28 @@ class GenerationSpec extends AnyFunSuite {
   }
 
   test("Nested list") {
-    val root = Root(List(Pair("scalaDeps", Arr(List(
-      Arr(List(Str("io.monix"), Str("minitest"), Str("2.2.2"))),
-      Arr(List(Str("org.scalacheck"), Str("scalacheck"), Str("1.14.0"))),
-      Arr(List(Str("org.scalatest"), Str("scalatest"), Str("3.2.0-SNAP10")))
-    )))))
+    val root = Root(
+      List(
+        Pair(
+          "scalaDeps",
+          Arr(
+            List(
+              Arr(List(Str("io.monix"), Str("minitest"), Str("2.2.2"))),
+              Arr(
+                List(Str("org.scalacheck"), Str("scalacheck"), Str("1.14.0"))
+              ),
+              Arr(
+                List(
+                  Str("org.scalatest"),
+                  Str("scalatest"),
+                  Str("3.2.0-SNAP10")
+                )
+              )
+            )
+          )
+        )
+      )
+    )
 
     val table =
       """
@@ -179,11 +206,20 @@ class GenerationSpec extends AnyFunSuite {
   }
 
   test("List of tables") {
-    val root = Root(List(Pair("points", Arr(List(
-      Tbl(Map("x" -> Num(1), "y" -> Num(2), "z" -> Num(3))),
-      Tbl(Map("x" -> Num(7), "y" -> Num(8), "z" -> Num(9))),
-      Tbl(Map("x" -> Num(2), "y" -> Num(4), "z" -> Num(8)))
-    )))))
+    val root = Root(
+      List(
+        Pair(
+          "points",
+          Arr(
+            List(
+              Tbl(Map("x" -> Num(1), "y" -> Num(2), "z" -> Num(3))),
+              Tbl(Map("x" -> Num(7), "y" -> Num(8), "z" -> Num(9))),
+              Tbl(Map("x" -> Num(2), "y" -> Num(4), "z" -> Num(8)))
+            )
+          )
+        )
+      )
+    )
 
     val table =
       """

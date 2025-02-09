@@ -12,9 +12,9 @@ object Constants {
 
   final val Dashes = "\\-_"
 
-  final val Lf   = "\n"
+  final val Lf = "\n"
   final val CrLf = "\r\n"
 
   final val WhitespaceChars = " \t"
-  final val EscapeChars  = "\b\t\n\f\r\"\\"
+  final val EscapeChars = "\b\t\n\f\r\"\\"
 }
