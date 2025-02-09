@@ -32,7 +32,7 @@ jobs:
       - uses: sbt/setup-sbt@v1
 
       - name: Test
-        run: sbt --client test
+        run: sbt --client ci
 
       - name: Test publishing
         run: sbt --client publishLocal
