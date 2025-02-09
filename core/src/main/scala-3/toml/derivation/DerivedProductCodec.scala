@@ -12,7 +12,7 @@ object DerivedProductCodec:
       d: DefaultParams[P],
   ): DerivedProductCodec[P] with
 
-    inline def unfold[T](
+    def unfold[T](
         defaults: Defaults,
         ctx: Context,
         codec: Codec[T],
