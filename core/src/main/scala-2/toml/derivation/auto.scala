@@ -1,11 +1,8 @@
 package toml.derivation
 
-import toml._
-
-import shapeless._
-import shapeless.labelled._
-
-import scala.annotation.implicitNotFound
+import shapeless.*
+import shapeless.labelled.*
+import toml.*
 
 object auto extends LowPriorityCodecs with PlatformCodecs {
   implicit val hnilFromNode: Codec[HNil] =

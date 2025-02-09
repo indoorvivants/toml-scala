@@ -1,11 +1,9 @@
 package toml
 
-import java.time.{
-  LocalDateTime,
-  LocalTime,
-  LocalDate,
-  OffsetDateTime => JOffsetDateTime
-}
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.OffsetDateTime as JOffsetDateTime
 
 private[toml] trait PlatformValue {
   case class Date(value: LocalDate) extends Value

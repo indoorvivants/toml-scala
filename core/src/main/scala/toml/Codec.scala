@@ -1,6 +1,7 @@
 package toml
 
 import scala.annotation.implicitNotFound
+
 import toml.derivation.DerivedSyntax
 
 @implicitNotFound("Codec[${A}] implicit not defined in scope")

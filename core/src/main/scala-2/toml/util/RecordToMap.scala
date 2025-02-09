@@ -1,6 +1,9 @@
 package toml.util
 
-import shapeless.{::, HList, HNil, Witness}
+import shapeless.::
+import shapeless.HList
+import shapeless.HNil
+import shapeless.Witness
 import shapeless.labelled.FieldType
 
 // From https://github.com/circe/circe/blob/57c0d7eac5fac98bbfc40134da81ea53d0853ed2/modules/generic-extras/src/main/scala/io/circe/generic/extras/util/RecordToMap.scala

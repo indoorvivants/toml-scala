@@ -1,6 +1,6 @@
 package toml
 
-import shapeless._
+import shapeless.*
 
 private[toml] trait TomlVersionSpecific { self: Toml.type =>
   class CodecHelperGeneric[A] {

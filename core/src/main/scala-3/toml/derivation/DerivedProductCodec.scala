@@ -1,8 +1,7 @@
 package toml
 package derivation
-import toml.Codec.Defaults
-import toml.Codec.Index
 import shapeless3.deriving.*
+import toml.Codec.Defaults
 
 trait DerivedProductCodec[P] extends Codec[P]
 object DerivedProductCodec:
