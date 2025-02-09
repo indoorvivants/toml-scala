@@ -27,7 +27,7 @@ class RulesSpec extends AnyFunSuite with Matchers {
 
   test("Parse quoted strings") {
     val toml =
-      """a = "I'm a string. \"You can quote me\". Name\tJos\u00E9\nLocation\tSF.""""
+      """a = "I'm a string. \"You can quote me\". Name\tJosé\nLocation\tSF.""""
     val nodes = testSuccess(toml).nodes
     assert(
       nodes(0) == Node.Pair(
