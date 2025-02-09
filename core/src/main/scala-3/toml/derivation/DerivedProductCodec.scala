@@ -9,92 +9,95 @@ object DerivedProductCodec:
   given codecGen[P](using
       inst: K0.ProductInstances[Codec, P],
       labelling: Labelling[P],
-      d: DefaultParams[P]
+      d: DefaultParams[P],
   ): DerivedProductCodec[P] with
+
+    inline def unfold[T](
+        defaults: Defaults,
+        ctx: Context,
+        codec: Codec[T],
+    ): (Context, Option[T]) =
+      val head = ctx.head
+
+      def fail(f: Context => Context) =
+        f(ctx) -> None
+
+      ctx.tomlValue match
+        case Value.Tbl(map) if map.contains(head) =>
+          codec(map(head), defaults, 0) match
+            case Right(t) =>
+              (
+                Context(Value.Tbl(map - head), ctx.tail, 0, ctx.error),
+                Some(t),
+              )
+            case Left((path, e)) =>
+              (ctx.withError(head :: path, e), None)
+        case Value.Tbl(map) =>
+          map.keySet.diff(labelling.elemLabels.toSet).headOption match
+            case Some(unknown) =>
+              fail(
+                _.withError(unknown :: ctx.errorAddress, s"Unknown field"),
+              )
+            case None =>
+              d.defaultParams.get(head) match
+                case None =>
+                  if codec.optional then
+                    (ctx.continueWithTail, Some(None.asInstanceOf[T]))
+                  else
+                    fail(
+                      _.withErrorMessage(s"Cannot resolve `${head}`"),
+                    )
+                case Some(t) =>
+                  (ctx.continueWithTail, Some(t.asInstanceOf[T]))
+        case Value.Arr(values @ (head +: tail)) =>
+          codec(head, defaults, ctx.index) match
+            case Left((path, e)) =>
+              fail(
+                _.withError(s"#${ctx.index + 1}" :: path, e),
+              )
+            case Right(t) =>
+              (
+                Context(
+                  Value.Arr(tail),
+                  ctx.tail,
+                  ctx.index + 1,
+                  (ctx.errorAddress, ctx.errorMessage),
+                ),
+                Some(t),
+              )
+        case Value.Arr(Nil) =>
+          d.defaultParams.get(head) match
+            case None =>
+              if codec.optional then
+                (
+                  ctx.continueWithTail,
+                  Some(None.asInstanceOf[T]),
+                )
+              else
+                fail(
+                  _.withErrorMessage(
+                    s"Cannot resolve `$head`",
+                  ),
+                )
+            case Some(t) =>
+              (ctx.continueWithTail, Some(t.asInstanceOf[T]))
+        case _ =>
+          fail(
+            _.withError(Nil, s"Cannot resolve `$head`"),
+          )
+      end match
+    end unfold
+
     def apply(
         value: Value,
         defaults: Defaults,
-        index: Int
+        index: Int,
     ): Either[Parse.Error, P] =
-      inst.unfold[Context](
-        Context(value, labelling.elemLabels, index)
-      )(
+      val result = inst.unfold(Context(value, labelling.elemLabels, index)):
         [t] =>
-          (ctx: Context, codec: Codec[t]) =>
-            val head = ctx.head
-            ctx.tomlValue match
-              case Value.Tbl(map) if map.contains(head) =>
-                codec(map(head), defaults, 0) match
-                  case Right(t) =>
-                    (
-                      Context(Value.Tbl(map - head), ctx.tail, 0, ctx.error),
-                      Some(t)
-                    )
-                  case Left((path, e)) =>
-                    (ctx.withError(head :: path, e), None)
-              case Value.Tbl(map) =>
-                map.keySet.diff(labelling.elemLabels.toSet).headOption match
-                  case Some(unknown) =>
-                    (
-                      ctx.withError(
-                        unknown :: ctx.errorAddress,
-                        s"Unknown field"
-                      ),
-                      None
-                    )
-                  case None =>
-                    d.defaultParams.get(head) match
-                      case None =>
-                        if codec.optional then
-                          (ctx.continueWithTail, Some(None.asInstanceOf[t]))
-                        else
-                          (
-                            ctx.withErrorMessage(s"Cannot resolve `${head}`"),
-                            None
-                          )
-                      case Some(t) =>
-                        (ctx.continueWithTail, Some(t.asInstanceOf[t]))
-              case Value.Arr(values @ (head +: tail)) =>
-                codec(head, defaults, ctx.index) match
-                  case Left((path, e)) =>
-                    (
-                      ctx.withError(s"#${ctx.index + 1}" :: path, e),
-                      None
-                    )
-                  case Right(t) =>
-                    (
-                      Context(
-                        Value.Arr(tail),
-                        ctx.tail,
-                        ctx.index + 1,
-                        (ctx.errorAddress, ctx.errorMessage)
-                      ),
-                      Some(t)
-                    )
-              case Value.Arr(Nil) =>
-                d.defaultParams.get(head) match
-                  case None =>
-                    if codec.optional then
-                      (
-                        ctx.continueWithTail,
-                        Some(None.asInstanceOf[t])
-                      )
-                    else
-                      (
-                        ctx.withErrorMessage(
-                          s"Cannot resolve `$head`"
-                        ),
-                        None
-                      )
-                  case Some(t) =>
-                    (ctx.continueWithTail, Some(t.asInstanceOf[t]))
-              case _ =>
-                (
-                  ctx.withError(Nil, s"Cannot resolve `$head`"),
-                  None
-                )
-            end match
-      ) match
+          (ctx: Context, codec: Codec[t]) => unfold[t](defaults, ctx, codec)
+
+      result match
         case (Context(Value.Tbl(map), _, _, (path, e)), p) =>
           if map.isEmpty then p.toRight((path, e))
           else
@@ -111,54 +114,3 @@ object DerivedProductCodec:
     end apply
   end codecGen
 end DerivedProductCodec
-
-/** This type represents derivation context.
-  *
-  * Codec derivation is stateful operation in that
-  *   - it removes an entry from TOML table when it successfully parses a field
-  *   - it reads TOML array by mutating index
-  *   - it accumulates error address as a list
-  *
-  * @param tomlValue
-  *   the TOML value from which the value of type `P` is built
-  * @param labels
-  *   field names of type `P`
-  * @param index
-  *   index of array elements
-  * @param error
-  *   a pair of error address and error message.
-  */
-private final case class Context(
-    tomlValue: Value,
-    labels: Seq[String],
-    index: Int,
-    error: Parse.Error
-):
-  def head = labels.head
-  def tail = labels.tail
-  def errorAddress = error._1
-  def errorMessage = error._2
-
-  def withErrorMessage(message: String) = copy(
-    error = (errorAddress, message)
-  )
-  def withError(address: List[String], message: String) = copy(
-    error = (address, message)
-  )
-
-  /** It removes the first label from the list and continue with remaining labels
-    */
-  def continueWithTail = copy(
-    tomlValue,
-    tail,
-    index,
-    error
-  )
-end Context
-
-private object Context:
-  def apply(
-      tomlValue: Value,
-      labels: Seq[String],
-      index: Int
-  ) = new Context(tomlValue, labels, index, (Nil, ""))
