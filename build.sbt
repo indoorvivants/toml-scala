@@ -83,6 +83,12 @@ lazy val toml =
       },
     )
 
+lazy val docs = project
+  .in(file("target/docs-mdoc"))
+  .dependsOn(toml.jvm(Scala3))
+  .enablePlugins(MdocPlugin)
+  .settings(scalaVersion := Scala3)
+
 lazy val superMatrix = Seq((Compile / unmanagedSourceDirectories) ++= {
   val allCombos = List("js", "jvm", "native").combinations(2).toList
   val dis =
