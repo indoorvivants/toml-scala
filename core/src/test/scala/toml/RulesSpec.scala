@@ -21,14 +21,22 @@ class RulesSpec extends AnyFunSuite with Matchers {
   test("Strings in table headers") {
     assert(
       testSuccess("[ j . \"ʞ\" . 'l' ]") ==
-      Root(List(Node.NamedTable(List("j", "ʞ", "l"), List()))))
+        Root(List(Node.NamedTable(List("j", "ʞ", "l"), List())))
+    )
   }
 
   test("Parse quoted strings") {
-    val toml = """a = "I'm a string. \"You can quote me\". Name\tJos\u00E9\nLocation\tSF.""""
+    val toml =
+      """a = "I'm a string. \"You can quote me\". Name\tJos\u00E9\nLocation\tSF.""""
     val nodes = testSuccess(toml).nodes
-    assert(nodes(0) == Node.Pair("a", Value.Str(
-      "I'm a string. \"You can quote me\". Name\tJosé\nLocation\tSF.")))
+    assert(
+      nodes(0) == Node.Pair(
+        "a",
+        Value.Str(
+          "I'm a string. \"You can quote me\". Name\tJosé\nLocation\tSF."
+        )
+      )
+    )
   }
 
   test("Parse unicode strings") {
@@ -131,10 +139,11 @@ class RulesSpec extends AnyFunSuite with Matchers {
         |b = 42
       """.stripMargin
 
-    assert(testSuccess(example) == Root(List(
-      Node.NamedTable(
-        List("a", "tes\"t"),
-        List("b" -> Value.Num(42))))))
+    assert(
+      testSuccess(example) == Root(
+        List(Node.NamedTable(List("a", "tes\"t"), List("b" -> Value.Num(42))))
+      )
+    )
   }
 
   test("Parse multi-line array with trailing commas") {
@@ -154,7 +163,8 @@ class RulesSpec extends AnyFunSuite with Matchers {
   }
 
   test("Fail to parse comment at EOL") {
-    val example = "string = \"Anything other than tabs, spaces and newline after a keygroup or key value pair has ended should produce an error unless it is a comment\"   like this"
+    val example =
+      "string = \"Anything other than tabs, spaces and newline after a keygroup or key value pair has ended should produce an error unless it is a comment\"   like this"
     testFailure(example)
   }
 
@@ -182,10 +192,15 @@ class RulesSpec extends AnyFunSuite with Matchers {
         |flt3 = -0.01
       """.stripMargin
 
-    assert(testSuccess(example) == Root(List(
-      Node.Pair("flt1", Value.Real(+1.0)),
-      Node.Pair("flt2", Value.Real(3.1415)),
-      Node.Pair("flt3", Value.Real(-0.01)))))
+    assert(
+      testSuccess(example) == Root(
+        List(
+          Node.Pair("flt1", Value.Real(+1.0)),
+          Node.Pair("flt2", Value.Real(3.1415)),
+          Node.Pair("flt3", Value.Real(-0.01))
+        )
+      )
+    )
   }
 
   test("Parse floats with exponent part") {
@@ -195,26 +210,39 @@ class RulesSpec extends AnyFunSuite with Matchers {
         |flt6 = -2E-2
       """.stripMargin
 
-    assert(testSuccess(example) == Root(List(
-      Node.Pair("flt4", Value.Real(5e+22)),
-      Node.Pair("flt5", Value.Real(1e6)),
-      Node.Pair("flt6", Value.Real(-2E-2)))))
+    assert(
+      testSuccess(example) == Root(
+        List(
+          Node.Pair("flt4", Value.Real(5e+22)),
+          Node.Pair("flt5", Value.Real(1e6)),
+          Node.Pair("flt6", Value.Real(-2e-2))
+        )
+      )
+    )
   }
 
   test("Parse floats with fractional and exponent part") {
     val example = "flt7 = 6.626e-34\n" +
-                  "poly = -45.321e12"
+      "poly = -45.321e12"
 
-    assert(testSuccess(example) == Root(List(
-      Node.Pair("flt7", Value.Real(6.626e-34)),
-      Node.Pair("poly", Value.Real(-45.321e12)))))
+    assert(
+      testSuccess(example) == Root(
+        List(
+          Node.Pair("flt7", Value.Real(6.626e-34)),
+          Node.Pair("poly", Value.Real(-45.321e12))
+        )
+      )
+    )
   }
 
   test("Parse floats with underscores") {
     val example = "flt8 = 224_617.445_991_228"
 
-    assert(testSuccess(example) == Root(List(
-      Node.Pair("flt8", Value.Real(224617.445991228)))))
+    assert(
+      testSuccess(example) == Root(
+        List(Node.Pair("flt8", Value.Real(224617.445991228)))
+      )
+    )
   }
 
   test("Parse infinity constant") {
@@ -224,10 +252,15 @@ class RulesSpec extends AnyFunSuite with Matchers {
         |sf3 = -inf
         |""".stripMargin
 
-    assert(testSuccess(example) == Root(List(
-      Node.Pair("sf1", Value.Real(Double.PositiveInfinity)),
-      Node.Pair("sf2", Value.Real(Double.PositiveInfinity)),
-      Node.Pair("sf3", Value.Real(Double.NegativeInfinity)))))
+    assert(
+      testSuccess(example) == Root(
+        List(
+          Node.Pair("sf1", Value.Real(Double.PositiveInfinity)),
+          Node.Pair("sf2", Value.Real(Double.PositiveInfinity)),
+          Node.Pair("sf3", Value.Real(Double.NegativeInfinity))
+        )
+      )
+    )
   }
 
   test("Parse NaN constant") {
@@ -243,7 +276,7 @@ class RulesSpec extends AnyFunSuite with Matchers {
     // Cannot use `==` here since Double.NaN != Double.NaN
     assert(result.forall {
       case Node.Pair(_, Value.Real(v)) => v.equals(Double.NaN)
-      case _ => false
+      case _                           => false
     })
   }
 }

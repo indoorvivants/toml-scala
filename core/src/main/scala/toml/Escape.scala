@@ -15,9 +15,9 @@ object Escape {
         case '\n' => sb.append("\\n")
         case '\f' => sb.append("\\f")
         case '\r' => sb.append("\\r")
-        case '"' => sb.append("\\\"")
+        case '"'  => sb.append("\\\"")
         case '\\' => sb.append("\\\\")
-        case c => sb.append(c)
+        case c    => sb.append(c)
       }
     }
 

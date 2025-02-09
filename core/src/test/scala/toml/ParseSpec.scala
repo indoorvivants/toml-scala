@@ -19,12 +19,21 @@ class ParseSpec extends AnyFunSuite {
         |""".stripMargin
 
     val result = Toml.parse(toml)
-    assert(result == Right(Tbl(Map("lines" -> Value.Str(
-      "\n" +
-      "The first newline is\n" +
-      "trimmed in raw strings.\n" +
-      "  All other whitespace\n" +
-      "  is preserved.\n")))))
+    assert(
+      result == Right(
+        Tbl(
+          Map(
+            "lines" -> Value.Str(
+              "\n" +
+                "The first newline is\n" +
+                "trimmed in raw strings.\n" +
+                "  All other whitespace\n" +
+                "  is preserved.\n"
+            )
+          )
+        )
+      )
+    )
   }
 
   test("Redefine value on root level") {
@@ -57,12 +66,18 @@ class ParseSpec extends AnyFunSuite {
   }
 
   test("Extension: Parse inline tables with trailing comma") {
-    val result = Toml.parse("""key = {
+    val result = Toml.parse(
+      """key = {
       a = 23,
       b = 42,
-    }""", Set(Extension.MultiLineInlineTables))
+    }""",
+      Set(Extension.MultiLineInlineTables)
+    )
 
-    assert(result == Right(Tbl(
-      Map("key" -> Tbl(Map("a" -> Num(23), "b" -> Num(42)))))))
+    assert(
+      result == Right(
+        Tbl(Map("key" -> Tbl(Map("a" -> Num(23), "b" -> Num(42)))))
+      )
+    )
   }
 }
