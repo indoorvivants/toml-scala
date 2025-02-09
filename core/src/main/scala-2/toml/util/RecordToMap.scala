@@ -19,7 +19,7 @@ final object RecordToMap {
 
   implicit def hconsRecordToMap[K <: Symbol, V, T <: HList](implicit
       wit: Witness.Aux[K],
-      rtmT: RecordToMap[T]
+      rtmT: RecordToMap[T],
   ): RecordToMap[FieldType[K, V] :: T] = new RecordToMap[FieldType[K, V] :: T] {
     def apply(r: FieldType[K, V] :: T): Map[String, Any] =
       rtmT(r.tail) + ((wit.value.name, r.head))

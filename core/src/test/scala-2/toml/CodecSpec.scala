@@ -16,9 +16,9 @@ trait CodecSpecExtras { self: CodecSpec =>
         Left(
           (
             List("module", "name", "a", "b", "#1"),
-            "List expected, Num(1) provided"
-          )
-        )
+            "List expected, Num(1) provided",
+          ),
+        ),
     )
   }
 }

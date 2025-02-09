@@ -24,7 +24,7 @@ object Generators {
         s"$SingleQuote$s",
         s + SingleQuote,
         s"$DoubleQuote$s",
-        s + DoubleQuote
+        s + DoubleQuote,
       )
     } yield f
   }
@@ -130,7 +130,7 @@ object Generators {
       validStrGen,
       validDoubleGen,
       validLongGen,
-      validBoolGen
+      validBoolGen,
     ).suchThat(_.nonEmpty)
 
     def bareKeyGen = Gen
@@ -138,7 +138,7 @@ object Generators {
         Gen.alphaLowerChar,
         Gen.alphaUpperChar,
         Gen.alphaNumChar,
-        Gen.oneOf('_', '-')
+        Gen.oneOf('_', '-'),
       )
       .suchThat(_.nonEmpty)
       .map(_.mkString)

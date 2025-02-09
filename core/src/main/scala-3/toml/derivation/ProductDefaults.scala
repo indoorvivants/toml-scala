@@ -9,7 +9,7 @@ object DefaultParams:
       extends DefaultParams[P]:
     final def defaultParams: Map[String, Any] = f()
   inline given inst[P <: Product](using
-      r: K0.ProductGeneric[P]
+      r: K0.ProductGeneric[P],
   ): DefaultParams[P] = DefaultParamsGen { () =>
     macros.defaultParams[P]
   }

@@ -6,18 +6,18 @@ private[toml] trait TomlVersionSpecific:
   class CodecHelperGeneric[T]:
     def apply(table: Value.Tbl)(using
         codec: Codec[T],
-        D: DefaultParams[T]
+        D: DefaultParams[T],
     ): Either[Parse.Error, T] =
       codec(table, D.defaultParams, 0)
 
     def apply(
         toml: String,
-        extensions: Set[Extension]
+        extensions: Set[Extension],
     )(using codec: Codec[T], D: DefaultParams[T]): Either[Parse.Error, T] =
       parse(toml, extensions).flatMap(codec(_, D.defaultParams, 0))
 
     def apply(
-        toml: String
+        toml: String,
     )(using codec: Codec[T], D: DefaultParams[T]): Either[Parse.Error, T] =
       apply(toml, Set.empty)
   end CodecHelperGeneric
@@ -27,7 +27,7 @@ private[toml] trait TomlVersionSpecific:
       codec(value, Map(), 0)
 
     def apply(toml: String, extensions: Set[Extension] = Set())(using
-        codec: Codec[A]
+        codec: Codec[A],
     ): Either[Parse.Error, A] =
       parse(toml, extensions).right.flatMap(codec(_, Map(), 0))
   end CodecHelperValue

@@ -76,7 +76,8 @@ lazy val toml =
         val opts = Seq.newBuilder[String]
         if (scalaBinaryVersion.value.startsWith("2.")) opts += "-Xsource:3"
         if (scalaBinaryVersion.value.startsWith("2.")) opts += "-Ywarn-unused"
-        if (scalaBinaryVersion.value.startsWith("2.12")) opts += "-Ywarn-unused-import"
+        if (scalaBinaryVersion.value.startsWith("2.12"))
+          opts += "-Ywarn-unused-import"
         if (scalaBinaryVersion.value.startsWith("3")) opts += "-Wunused:imports"
         opts.result()
       },

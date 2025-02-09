@@ -29,7 +29,7 @@ class EmbedSpec extends AnyFunSuite {
     val node = fastparse.parse(table, Rules.root(_)).get.value
     assert(
       Embed.root(node) ==
-        Right(Tbl(Map("table" -> Tbl(Map("a" -> Num(1))))))
+        Right(Tbl(Map("table" -> Tbl(Map("a" -> Num(1)))))),
     )
   }
 
@@ -43,7 +43,7 @@ class EmbedSpec extends AnyFunSuite {
     val node = fastparse.parse(table, Rules.root(_)).get.value
     assert(
       Embed.root(node) ==
-        Right(Tbl(Map("a" -> Num(1), "table" -> Tbl(Map("b" -> Num(2))))))
+        Right(Tbl(Map("a" -> Num(1), "table" -> Tbl(Map("b" -> Num(2)))))),
     )
   }
 
@@ -63,12 +63,12 @@ class EmbedSpec extends AnyFunSuite {
                 Tbl(
                   Map(
                     "table2" ->
-                      Tbl(Map("value" -> Num(42)))
-                  )
-                )
-            )
-          )
-        )
+                      Tbl(Map("value" -> Num(42))),
+                  ),
+                ),
+            ),
+          ),
+        ),
     )
   }
 
@@ -89,12 +89,12 @@ class EmbedSpec extends AnyFunSuite {
               "table" -> Tbl(
                 Map(
                   "table2" -> Tbl(Map("value" -> Num(23))),
-                  "table3" -> Tbl(Map("value" -> Num(42)))
-                )
-              )
-            )
-          )
-        )
+                  "table3" -> Tbl(Map("value" -> Num(42))),
+                ),
+              ),
+            ),
+          ),
+        ),
     )
   }
 
@@ -114,12 +114,12 @@ class EmbedSpec extends AnyFunSuite {
               "table" -> Tbl(
                 Map(
                   "table2" -> Tbl(Map.empty),
-                  "table3" -> Tbl(Map("value" -> Num(42)))
-                )
-              )
-            )
-          )
-        )
+                  "table3" -> Tbl(Map("value" -> Num(42))),
+                ),
+              ),
+            ),
+          ),
+        ),
     )
   }
 
@@ -140,12 +140,12 @@ class EmbedSpec extends AnyFunSuite {
                 List(
                   Tbl(Map("x" -> Num(1), "y" -> Num(2), "z" -> Num(3))),
                   Tbl(Map("x" -> Num(7), "y" -> Num(8), "z" -> Num(9))),
-                  Tbl(Map("x" -> Num(2), "y" -> Num(4), "z" -> Num(8)))
-                )
-              )
-            )
-          )
-        )
+                  Tbl(Map("x" -> Num(2), "y" -> Num(4), "z" -> Num(8))),
+                ),
+              ),
+            ),
+          ),
+        ),
     )
   }
 
@@ -174,21 +174,21 @@ class EmbedSpec extends AnyFunSuite {
                   Map(
                     "name" -> Str("Hammer"),
                     "sku" -> Num(738594937),
-                    "colour" -> Str("blue")
-                  )
+                    "colour" -> Str("blue"),
+                  ),
                 ),
                 Tbl(
                   Map(
                     "name" -> Str("Nail"),
                     "sku" -> Num(284758393),
-                    "colour" -> Str("grey")
-                  )
-                )
-              )
-            )
-          )
-        )
-      )
+                    "colour" -> Str("grey"),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     )
   }
 
@@ -220,14 +220,14 @@ class EmbedSpec extends AnyFunSuite {
                   Map(
                     "name" -> Str("Nail"),
                     "sku" -> Num(284758393),
-                    "colour" -> Str("grey")
-                  )
-                )
-              )
-            )
-          )
-        )
-      )
+                    "colour" -> Str("grey"),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     )
   }
 
@@ -267,32 +267,32 @@ class EmbedSpec extends AnyFunSuite {
                     "physical" -> Tbl(
                       Map(
                         "colour" -> Str("red"),
-                        "shape" -> Str("round")
-                      )
+                        "shape" -> Str("round"),
+                      ),
                     ),
                     "variety" -> Arr(
                       List(
                         Tbl(Map("name" -> Str("red delicious"))),
-                        Tbl(Map("name" -> Str("granny smith")))
-                      )
-                    )
-                  )
+                        Tbl(Map("name" -> Str("granny smith"))),
+                      ),
+                    ),
+                  ),
                 ),
                 Tbl(
                   Map(
                     "name" -> Str("banana"),
                     "variety" -> Arr(
                       List(
-                        Tbl(Map("name" -> Str("plantain")))
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
-      )
+                        Tbl(Map("name" -> Str("plantain"))),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     )
   }
 }

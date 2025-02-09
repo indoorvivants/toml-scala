@@ -5,7 +5,7 @@ private[toml] object macros:
 
   def defaultParamsImpl[T](using
       quotes: Quotes,
-      tpe: Type[T]
+      tpe: Type[T],
   ): Expr[Map[String, Any]] =
     import quotes.reflect.*
     val sym = TypeTree.of[T].symbol

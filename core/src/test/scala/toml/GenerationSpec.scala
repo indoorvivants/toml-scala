@@ -81,7 +81,7 @@ class GenerationSpec extends AnyFunSuite {
 
   test("Pair and table") {
     val root = Root(
-      List(Pair("a", Num(1)), NamedTable(List("table"), List("b" -> Num(2))))
+      List(Pair("a", Num(1)), NamedTable(List("table"), List("b" -> Num(2)))),
     )
 
     val table =
@@ -100,8 +100,8 @@ class GenerationSpec extends AnyFunSuite {
       List(
         Pair("a", Num(1)),
         NamedTable(List("table"), List("b" -> Num(2))),
-        NamedTable(List("table2"), List("c" -> Num(3)))
-      )
+        NamedTable(List("table2"), List("c" -> Num(3))),
+      ),
     )
 
     val table =
@@ -145,11 +145,11 @@ class GenerationSpec extends AnyFunSuite {
               "-Xfuture",
               "-Yno-adapted-args",
               "-Ywarn-numeric-widen",
-              "-feature"
-            ).map(Str.apply)
-          )
-        )
-      )
+              "-feature",
+            ).map(Str.apply),
+          ),
+        ),
+      ),
     )
 
     val table =
@@ -178,19 +178,19 @@ class GenerationSpec extends AnyFunSuite {
             List(
               Arr(List(Str("io.monix"), Str("minitest"), Str("2.2.2"))),
               Arr(
-                List(Str("org.scalacheck"), Str("scalacheck"), Str("1.14.0"))
+                List(Str("org.scalacheck"), Str("scalacheck"), Str("1.14.0")),
               ),
               Arr(
                 List(
                   Str("org.scalatest"),
                   Str("scalatest"),
-                  Str("3.2.0-SNAP10")
-                )
-              )
-            )
-          )
-        )
-      )
+                  Str("3.2.0-SNAP10"),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     )
 
     val table =
@@ -214,11 +214,11 @@ class GenerationSpec extends AnyFunSuite {
             List(
               Tbl(Map("x" -> Num(1), "y" -> Num(2), "z" -> Num(3))),
               Tbl(Map("x" -> Num(7), "y" -> Num(8), "z" -> Num(9))),
-              Tbl(Map("x" -> Num(2), "y" -> Num(4), "z" -> Num(8)))
-            )
-          )
-        )
-      )
+              Tbl(Map("x" -> Num(2), "y" -> Num(4), "z" -> Num(8))),
+            ),
+          ),
+        ),
+      ),
     )
 
     val table =

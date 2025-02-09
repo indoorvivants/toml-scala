@@ -9,7 +9,7 @@ trait Codec[A] {
   def apply(
       value: Value,
       defaults: Codec.Defaults,
-      index: Int
+      index: Int,
   ): Either[Parse.Error, A]
   private[toml] def optional: Boolean = false
 }
@@ -18,12 +18,12 @@ object Codec extends DerivedSyntax {
   type Defaults = Map[String, Any]
   type Index = Int
   def apply[T](
-      f: (Value, Defaults, Index) => Either[Parse.Error, T]
+      f: (Value, Defaults, Index) => Either[Parse.Error, T],
   ): Codec[T] = new Codec[T] {
     override def apply(
         value: Value,
         defaults: Defaults,
-        index: Index
+        index: Index,
     ): Either[Parse.Error, T] = f(value, defaults, index)
   }
 
@@ -60,7 +60,7 @@ object Codec extends DerivedSyntax {
   implicit def listCodec[T](implicit codec: Codec[T]): Codec[List[T]] = Codec {
     case (Value.Arr(elems), _, _) =>
       elems.zipWithIndex.foldLeft(
-        Right(List.empty): Either[Parse.Error, List[T]]
+        Right(List.empty): Either[Parse.Error, List[T]],
       ) {
         case (Right(acc), (cur, idx)) =>
           codec(cur, Map.empty, 0).left

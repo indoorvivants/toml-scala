@@ -12,7 +12,7 @@ private[toml] trait PlatformRules { this: Rules =>
   def localTime[$: P]: P[Value.Time] = P(
     digit.rep(2).! ~ ":" ~ digit.rep(2).! ~ ":" ~ digit
       .rep(2)
-      .! ~ ("." ~ digit.rep.!).?
+      .! ~ ("." ~ digit.rep.!).?,
   ).map { case (h, m, s, ns) =>
     val nano = ns
       .map { str =>
@@ -25,19 +25,19 @@ private[toml] trait PlatformRules { this: Rules =>
   }
 
   def localDate[$: P]: P[Value.Date] = P(
-    digit.rep(4).! ~ "-" ~ digit.rep(2).! ~ "-" ~ digit.rep(2).!
+    digit.rep(4).! ~ "-" ~ digit.rep(2).! ~ "-" ~ digit.rep(2).!,
   ).map { case (y, m, d) =>
     Value.Date(LocalDate.of(y.toInt, m.toInt, d.toInt))
   }
 
   def localDateTime[$: P]: P[Value.DateTime] = P(
-    localDate ~ "T" ~ localTime
+    localDate ~ "T" ~ localTime,
   ).map { case (date, time) =>
     Value.DateTime(LocalDateTime.of(date.value, time.value))
   }
 
   def offsetDateTime[$: P]: P[Value.OffsetDateTime] = P(
-    localDateTime ~ ("Z" | (("-" | "+") ~ digit.rep(2) ~ ":" ~ digit.rep(2))).!
+    localDateTime ~ ("Z" | (("-" | "+") ~ digit.rep(2) ~ ":" ~ digit.rep(2))).!,
   ).map { case (dateTime, offset) =>
     // https://github.com/cquiroz/scala-java-time/issues/518
     val zone = offset match {
