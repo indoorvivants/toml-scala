@@ -1,7 +1,5 @@
-package toml 
+package toml
 package derivation
-
-
 
 /** This type represents derivation context.
   *
@@ -23,7 +21,7 @@ private final case class Context(
     tomlValue: Value,
     labels: Seq[String],
     index: Int,
-    error: Parse.Error
+    error: Parse.Error,
 ):
   def head = labels.head
   def tail = labels.tail
@@ -31,10 +29,10 @@ private final case class Context(
   def errorMessage = error._2
 
   def withErrorMessage(message: String) = copy(
-    error = (errorAddress, message)
+    error = (errorAddress, message),
   )
   def withError(address: List[String], message: String) = copy(
-    error = (address, message)
+    error = (address, message),
   )
 
   /** It removes the first label from the list and continue with remaining
@@ -44,7 +42,7 @@ private final case class Context(
     tomlValue,
     tail,
     index,
-    error
+    error,
   )
 end Context
 
@@ -52,5 +50,5 @@ private object Context:
   def apply(
       tomlValue: Value,
       labels: Seq[String],
-      index: Int
+      index: Int,
   ) = new Context(tomlValue, labels, index, (Nil, ""))

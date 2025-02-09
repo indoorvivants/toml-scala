@@ -45,7 +45,7 @@ class Rules(extensions: Set[Extension]) extends PlatformRules {
   def escape[$: P] = P(
     "\\" ~ (
       CharIn("\"/\\\\bfnrt") | unicodeEsc | unicodeEscLong
-    )
+    ),
   )
 
   def basicStr[$: P]: P[Value.Str] =
@@ -55,28 +55,28 @@ class Rules(extensions: Set[Extension]) extends PlatformRules {
     P(
       SingleQuote.toString ~/
         (!SingleQuote.toString ~ AnyChar).rep.! ~
-        SingleQuote.toString
+        SingleQuote.toString,
     ).map(Value.Str.apply)
   def multiLineBasicStr[$: P]: P[Value.Str] =
     P(
       MultiLineDoubleQuote ~/
         newLine.? ~
         (!MultiLineDoubleQuote ~ AnyChar).rep.! ~
-        MultiLineDoubleQuote
+        MultiLineDoubleQuote,
     ).map(str => Value.Str(Unescape.unescapeJavaString(str)))
   def multiLineLiteralStr[$: P]: P[Value.Str] =
     P(
       MultiLineSingleQuote ~/
         newLine.? ~
         (!MultiLineSingleQuote ~ AnyChar).rep.! ~
-        MultiLineSingleQuote
+        MultiLineSingleQuote,
     ).map(Value.Str.apply)
 
   def string[$: P]: P[Value.Str] = P(
     multiLineBasicStr |
       multiLineLiteralStr |
       basicStr |
-      literalStr
+      literalStr,
   )
 
   def rmUnderscore(s: String) = s.replace("_", "")
@@ -98,9 +98,9 @@ class Rules(extensions: Set[Extension]) extends PlatformRules {
                 (fractional ~ exponent) |
                   fractional |
                   exponent
-              )
+              ),
             ).!.map(s => rmUnderscore(s).toDouble)
-        )
+        ),
     ).map { case (sign, value) =>
       if (sign == "-") Value.Real(-value) else Value.Real(value)
     }

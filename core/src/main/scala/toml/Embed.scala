@@ -5,14 +5,14 @@ object Embed {
       stack: List[String],
       result: Value.Tbl,
       key: String,
-      value: Value
+      value: Value,
   ): Either[Parse.Error, Value.Tbl] =
     if (result.values.contains(key))
       Left((stack :+ key) -> "Cannot redefine value")
     else Right(Value.Tbl(result.values + (key -> value)))
 
   def merge[T](values: List[T])(
-      f: (Value.Tbl, T) => Either[Parse.Error, Value.Tbl]
+      f: (Value.Tbl, T) => Either[Parse.Error, Value.Tbl],
   ): Either[Parse.Error, Value.Tbl] =
     values.foldLeft(Right(Value.Tbl(Map())): Either[Parse.Error, Value.Tbl]) {
       case (Left(m), _)          => Left(m)
@@ -23,7 +23,7 @@ object Embed {
       value: Value.Tbl,
       stack: List[String],
       trace: List[String],
-      insert: List[(String, Value)]
+      insert: List[(String, Value)],
   ): Either[Parse.Error, Value.Tbl] =
     stack match {
       case Nil =>
@@ -40,13 +40,13 @@ object Embed {
                 last.asInstanceOf[Value.Tbl],
                 stackTail,
                 trace,
-                insert
+                insert,
               ).right.map(v => Value.Arr(init :+ v))
             case None => updateTable(Value.Tbl(Map()), stackTail, trace, insert)
           }
 
         child.right.map(c =>
-          value.copy(values = value.values + (stackHead -> c))
+          value.copy(values = value.values + (stackHead -> c)),
         )
     }
 
@@ -54,7 +54,7 @@ object Embed {
       value: Value,
       stack: List[String],
       trace: List[String],
-      insert: List[(String, Value)]
+      insert: List[(String, Value)],
   ): Either[Parse.Error, Value] =
     stack match {
       case Nil =>
@@ -64,7 +64,7 @@ object Embed {
           value match {
             case v: Value.Arr => v.copy(values = v.values :+ tbl)
             case _: Value.Tbl => Value.Arr(List(tbl))
-          }
+          },
         )
 
       case stackHead :: stackTail =>
@@ -76,7 +76,7 @@ object Embed {
           case v: Value.Tbl =>
             val oldChild = v.values.getOrElse(stackHead, Value.Tbl(Map()))
             addArrayRow(oldChild, stackTail, trace, insert).right.map(
-              newChild => v.copy(values = v.values + (stackHead -> newChild))
+              newChild => v.copy(values = v.values + (stackHead -> newChild)),
             )
         }
     }

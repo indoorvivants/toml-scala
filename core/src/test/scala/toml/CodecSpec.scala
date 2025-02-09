@@ -33,7 +33,7 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
 
     val pair3 = """a = 'Tom "Dubs" Preston-Werner'"""
     assert(
-      Toml.parseAs[Pair](pair3) == Right(Pair("Tom \"Dubs\" Preston-Werner"))
+      Toml.parseAs[Pair](pair3) == Right(Pair("Tom \"Dubs\" Preston-Werner")),
     )
 
     val pair4 =
@@ -41,8 +41,8 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
         |I [dw]on't need \d{2} apples'''""".stripMargin
     assert(
       Toml.parseAs[Pair](pair4) == Right(
-        Pair("""I [dw]on't need \d{2} apples""")
-      )
+        Pair("""I [dw]on't need \d{2} apples"""),
+      ),
     )
 
     val pair5 = "a = \"\"\"\nRoses\nViolets\"\"\""
@@ -157,7 +157,7 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
       """.stripMargin
     assert(
       Toml.parseAs[Root](table)
-        == Right(Root(Table(Table2(23), Table3(42))))
+        == Right(Root(Table(Table2(23), Table3(42)))),
     )
   }
 
@@ -195,8 +195,8 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
 
     assert(
       Toml.parseAs[Root](tableList) == Right(
-        Root(List(Point(1, 2, 3), Point(7, 8, 9), Point(2, 4, 8)))
-      )
+        Root(List(Point(1, 2, 3), Point(7, 8, 9), Point(2, 4, 8))),
+      ),
     )
   }
 
@@ -212,7 +212,7 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
 
     assert(
       Toml.parseAs[Root](tableList) ==
-        Left((List("points", "#2", "z"), "Unknown field"))
+        Left((List("points", "#2", "z"), "Unknown field")),
     )
   }
 
@@ -229,8 +229,8 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
 
     assert(
       Toml.parseAs[Root](tableList) == Right(
-        Root(List(Point(1, "2", 3), Point(7, "8", 9), Point(2, "4", 8)))
-      )
+        Root(List(Point(1, "2", 3), Point(7, "8", 9), Point(2, "4", 8))),
+      ),
     )
   }
 
@@ -242,7 +242,7 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
 
     assert(
       Toml.parseAs[Root](tableList) ==
-        Left((List("points", "#1"), "Cannot resolve `x`"))
+        Left((List("points", "#1"), "Cannot resolve `x`")),
     )
   }
 
@@ -254,8 +254,8 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
 
     assert(
       Toml.parseAs[Root](tableList) == Right(
-        Root(List(Point(1, "2", 42), Point(7, "y", 42), Point(23, "y", 42)))
-      )
+        Root(List(Point(1, "2", 42), Point(7, "y", 42), Point(23, "y", 42))),
+      ),
     )
   }
   test("Inline list of tuples with default values (2)") {
@@ -266,8 +266,8 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
 
     assert(
       Toml.parseAs[Root](tableList) == Right(
-        Root(List(Point(1, Some("2")), Point(7, None), Point(23, None)))
-      )
+        Root(List(Point(1, Some("2")), Point(7, None), Point(23, None))),
+      ),
     )
   }
 
@@ -283,10 +283,10 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
           List(
             Point(Some(1), Some("2")),
             Point(Some(7), None),
-            Point(Some(23), None)
-          )
-        )
-      )
+            Point(Some(23), None),
+          ),
+        ),
+      ),
     )
   }
 
@@ -298,8 +298,8 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
 
     assert(
       Toml.parseAs[Root](tableList) == Left(
-        (List("points", "#1"), "Too many elements; remove Str(2)")
-      )
+        (List("points", "#1"), "Too many elements; remove Str(2)"),
+      ),
     )
   }
 
@@ -311,7 +311,7 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
 
     assert(
       Toml.parseAs[Root](tableList) ==
-        Left((List("points", "#3", "#2"), "String expected, Num(4) provided"))
+        Left((List("points", "#3", "#2"), "String expected, Num(4) provided")),
     )
   }
 
@@ -328,9 +328,9 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
         Left(
           (
             List("points", "#3", "#2", "#1", "value"),
-            "String expected, Num(4) provided"
-          )
-        )
+            "String expected, Num(4) provided",
+          ),
+        ),
     )
   }
 
@@ -346,9 +346,9 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
         Left(
           (
             List("points", "#2", "#2", "#1", "#1"),
-            "String expected, Num(4) provided"
-          )
-        )
+            "String expected, Num(4) provided",
+          ),
+        ),
     )
   }
 
@@ -374,17 +374,17 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
         Root(
           List(
             Product("Hammer", 738594937, "blue"),
-            Product("Nail", 284758393, "grey")
-          )
-        )
-      )
+            Product("Nail", 284758393, "grey"),
+          ),
+        ),
+      ),
     )
   }
   test("Array of tables (2)") {
     case class Product(
         name: Option[String] = Option.empty,
         sku: Option[Int] = Option.empty,
-        colour: Option[String] = Option.empty
+        colour: Option[String] = Option.empty,
     )
     case class Root(products: List[Product])
 
@@ -408,10 +408,10 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
           List(
             Product(Some("Hammer"), Some(738594937), None),
             Product(None, None, None),
-            Product(Some("Nail"), Some(284758393), Some("grey"))
-          )
-        )
-      )
+            Product(Some("Nail"), Some(284758393), Some("grey")),
+          ),
+        ),
+      ),
     )
   }
 
@@ -421,7 +421,7 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     case class Fruit(
         name: String,
         physical: Option[Physical],
-        variety: List[Variety]
+        variety: List[Variety],
     )
     case class Root(fruit: List[Fruit])
 
@@ -456,13 +456,13 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
               Some(Physical("red", "round")),
               List(
                 Variety("red delicious"),
-                Variety("granny smith")
-              )
+                Variety("granny smith"),
+              ),
             ),
-            Fruit("banana", None, List(Variety("plantain")))
-          )
-        )
-      )
+            Fruit("banana", None, List(Variety("plantain"))),
+          ),
+        ),
+      ),
     )
   }
 
@@ -477,9 +477,9 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
       Toml.parseAsValue[Map[String, Int]](array) == Right(
         Map(
           "a" -> 23,
-          "b" -> 42
-        )
-      )
+          "b" -> 42,
+        ),
+      ),
     )
   }
 
@@ -489,7 +489,7 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     val toml = "a = 1"
     assert(
       Toml.parseAs[Root](toml) ==
-        Left((List("a"), "String expected, Num(1) provided"))
+        Left((List("a"), "String expected, Num(1) provided")),
     )
   }
 
@@ -499,7 +499,7 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     val toml = ""
     assert(
       Toml.parseAs[Root](toml) ==
-        Left((List.empty, "Cannot resolve `a`"))
+        Left((List.empty, "Cannot resolve `a`")),
     )
   }
 
@@ -510,7 +510,7 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     val toml = "a = 1"
     assert(
       Toml.parseAs[Root](toml) ==
-        Left((List("a"), "Cannot resolve `b`"))
+        Left((List("a"), "Cannot resolve `b`")),
     )
   }
 
@@ -522,7 +522,7 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     val toml = "a = { b = 42 }"
     assert(
       Toml.parseAs[Root](toml) ==
-        Left((List("a", "b"), "Cannot resolve `c`"))
+        Left((List("a", "b"), "Cannot resolve `c`")),
     )
   }
 
@@ -539,7 +539,7 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
 
     assert(
       Toml.parseAs[Root](toml) ==
-        Left((List("b"), "Cannot resolve `value`"))
+        Left((List("b"), "Cannot resolve `value`")),
     )
   }
 
@@ -549,7 +549,7 @@ class CodecSpec extends AnyFunSuite with CodecSpecExtras {
     val toml = """a = [ [ 1 ], [ "2" ] ]"""
     assert(
       Toml.parseAs[Root](toml) ==
-        Left((List("a", "#2", "#1"), "Int expected, Str(2) provided"))
+        Left((List("a", "#2", "#1"), "Int expected, Str(2) provided")),
     )
   }
 

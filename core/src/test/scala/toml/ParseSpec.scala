@@ -28,11 +28,11 @@ class ParseSpec extends AnyFunSuite {
                 "The first newline is\n" +
                 "trimmed in raw strings.\n" +
                 "  All other whitespace\n" +
-                "  is preserved.\n"
-            )
-          )
-        )
-      )
+                "  is preserved.\n",
+            ),
+          ),
+        ),
+      ),
     )
   }
 
@@ -71,13 +71,13 @@ class ParseSpec extends AnyFunSuite {
       a = 23,
       b = 42,
     }""",
-      Set(Extension.MultiLineInlineTables)
+      Set(Extension.MultiLineInlineTables),
     )
 
     assert(
       result == Right(
-        Tbl(Map("key" -> Tbl(Map("a" -> Num(23), "b" -> Num(42)))))
-      )
+        Tbl(Map("key" -> Tbl(Map("a" -> Num(23), "b" -> Num(42))))),
+      ),
     )
   }
 }

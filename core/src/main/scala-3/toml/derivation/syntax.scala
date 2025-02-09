@@ -7,5 +7,5 @@ private[toml] trait DerivedSyntax:
   inline def derived[P](using
       inst: K0.ProductInstances[Codec, P],
       labelling: Labelling[P],
-      inline d: DefaultParams[P]
+      inline d: DefaultParams[P],
   ): Codec[P] = DerivedProductCodec.codecGen[P]

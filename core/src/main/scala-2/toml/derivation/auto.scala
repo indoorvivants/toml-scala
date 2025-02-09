@@ -18,7 +18,7 @@ object auto extends LowPriorityCodecs with PlatformCodecs {
       generic: LabelledGeneric.Aux[A, R],
       defaults: Default.AsRecord.Aux[A, D],
       defaultMapper: util.RecordToMap[D],
-      codec: Codec[R]
+      codec: Codec[R],
   ): Codec[A] = {
     val d = defaultMapper(defaults())
     Codec((v, _, _) => codec(v, d, 0).right.map(generic.from))
@@ -31,7 +31,7 @@ trait LowPriorityCodecs {
   implicit def hconsFromNodeOpt[K <: Symbol, V, T <: HList](implicit
       witness: Witness.Aux[K],
       fromV: Lazy[Codec[V]],
-      fromT: Lazy[Codec[T]]
+      fromT: Lazy[Codec[T]],
   ): Codec[FieldType[K, Option[V]] :: T] = {
     import witness.value.{name => witnessName}
 
@@ -41,7 +41,7 @@ trait LowPriorityCodecs {
         mapError: Parse.Error => Parse.Error,
         default: Option[V],
         defaults: Codec.Defaults,
-        index: Codec.Index
+        index: Codec.Index,
     ) =
       fromT
         .value(tail, defaults, index + 1)
@@ -53,7 +53,7 @@ trait LowPriorityCodecs {
               for {
                 k <- fromV.value(v, defaults, index).left.map(mapError).right
               } yield field[K](Some(k)) :: t
-          }
+          },
         )
 
     def resolve(defaults: Map[String, Any], key: String): Option[V] =
@@ -67,7 +67,7 @@ trait LowPriorityCodecs {
           { case (a, m) => (witnessName +: a, m) },
           resolve(defaults, witnessName),
           defaults,
-          0
+          0,
         )
 
       case (Value.Arr(values), defaults, index) =>
@@ -77,7 +77,7 @@ trait LowPriorityCodecs {
           { case (a, m) => (s"#${index + 1}" +: a, m) },
           resolve(defaults, witnessName),
           defaults,
-          index
+          index,
         )
 
       case (value, _, _) =>
@@ -88,7 +88,7 @@ trait LowPriorityCodecs {
   implicit def hconsFromNode[K <: Symbol, V, T <: HList](implicit
       witness: Witness.Aux[K],
       fromV: Lazy[Codec[V]],
-      fromT: Lazy[Codec[T]]
+      fromT: Lazy[Codec[T]],
   ): Codec[FieldType[K, V] :: T] = {
     import witness.value.{name => witnessName}
 
@@ -97,7 +97,7 @@ trait LowPriorityCodecs {
         tail: Value,
         mapError: (Parse.Error, Codec.Index) => Parse.Error,
         defaults: Codec.Defaults,
-        index: Codec.Index
+        index: Codec.Index,
     ) =
       for {
         h <- fromV
@@ -115,7 +115,7 @@ trait LowPriorityCodecs {
           Value.Tbl(pairs - witnessName),
           { case ((a, m), _) => (witnessName +: a, m) },
           defaults,
-          0
+          0,
         )
 
       case (Value.Arr(head +: tail), defaults, index) =>
@@ -124,7 +124,7 @@ trait LowPriorityCodecs {
           Value.Arr(tail),
           { case ((a, m), index) => (s"#${index + 1}" +: a, m) },
           defaults,
-          index
+          index,
         )
 
       case (value, defaults, index)

@@ -28,10 +28,10 @@ object Generate {
           part.exists(c =>
             c == '.' ||
               Constants.EscapeChars.contains(c) ||
-              Constants.WhitespaceChars.contains(c)
+              Constants.WhitespaceChars.contains(c),
           )
         ) "\"" + Escape.escapeJavaString(part) + "\""
-        else part
+        else part,
       )
       .mkString(".")
 

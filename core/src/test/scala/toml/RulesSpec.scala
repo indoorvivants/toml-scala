@@ -21,7 +21,7 @@ class RulesSpec extends AnyFunSuite with Matchers {
   test("Strings in table headers") {
     assert(
       testSuccess("[ j . \"ʞ\" . 'l' ]") ==
-        Root(List(Node.NamedTable(List("j", "ʞ", "l"), List())))
+        Root(List(Node.NamedTable(List("j", "ʞ", "l"), List()))),
     )
   }
 
@@ -33,9 +33,9 @@ class RulesSpec extends AnyFunSuite with Matchers {
       nodes(0) == Node.Pair(
         "a",
         Value.Str(
-          "I'm a string. \"You can quote me\". Name\tJosé\nLocation\tSF."
-        )
-      )
+          "I'm a string. \"You can quote me\". Name\tJosé\nLocation\tSF.",
+        ),
+      ),
     )
   }
 
@@ -141,8 +141,8 @@ class RulesSpec extends AnyFunSuite with Matchers {
 
     assert(
       testSuccess(example) == Root(
-        List(Node.NamedTable(List("a", "tes\"t"), List("b" -> Value.Num(42))))
-      )
+        List(Node.NamedTable(List("a", "tes\"t"), List("b" -> Value.Num(42)))),
+      ),
     )
   }
 
@@ -197,9 +197,9 @@ class RulesSpec extends AnyFunSuite with Matchers {
         List(
           Node.Pair("flt1", Value.Real(+1.0)),
           Node.Pair("flt2", Value.Real(3.1415)),
-          Node.Pair("flt3", Value.Real(-0.01))
-        )
-      )
+          Node.Pair("flt3", Value.Real(-0.01)),
+        ),
+      ),
     )
   }
 
@@ -215,9 +215,9 @@ class RulesSpec extends AnyFunSuite with Matchers {
         List(
           Node.Pair("flt4", Value.Real(5e+22)),
           Node.Pair("flt5", Value.Real(1e6)),
-          Node.Pair("flt6", Value.Real(-2e-2))
-        )
-      )
+          Node.Pair("flt6", Value.Real(-2e-2)),
+        ),
+      ),
     )
   }
 
@@ -229,9 +229,9 @@ class RulesSpec extends AnyFunSuite with Matchers {
       testSuccess(example) == Root(
         List(
           Node.Pair("flt7", Value.Real(6.626e-34)),
-          Node.Pair("poly", Value.Real(-45.321e12))
-        )
-      )
+          Node.Pair("poly", Value.Real(-45.321e12)),
+        ),
+      ),
     )
   }
 
@@ -240,8 +240,8 @@ class RulesSpec extends AnyFunSuite with Matchers {
 
     assert(
       testSuccess(example) == Root(
-        List(Node.Pair("flt8", Value.Real(224617.445991228)))
-      )
+        List(Node.Pair("flt8", Value.Real(224617.445991228))),
+      ),
     )
   }
 
@@ -257,9 +257,9 @@ class RulesSpec extends AnyFunSuite with Matchers {
         List(
           Node.Pair("sf1", Value.Real(Double.PositiveInfinity)),
           Node.Pair("sf2", Value.Real(Double.PositiveInfinity)),
-          Node.Pair("sf3", Value.Real(Double.NegativeInfinity))
-        )
-      )
+          Node.Pair("sf3", Value.Real(Double.NegativeInfinity)),
+        ),
+      ),
     )
   }
 
