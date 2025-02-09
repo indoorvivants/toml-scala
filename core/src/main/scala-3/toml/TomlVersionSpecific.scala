@@ -1,6 +1,7 @@
 package toml
 
 import toml.derivation.DefaultParams
+
 private[toml] trait TomlVersionSpecific:
   self: Toml.type =>
   class CodecHelperGeneric[T]:

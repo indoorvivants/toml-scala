@@ -51,14 +51,17 @@ This project is an updated and maintained fork of the [original sparsetech/toml-
 - (1) On Scala.js and Scala Native we introduce dependency on https://index.scala-lang.org/cquiroz/scala-java-time to be able to parse date time values. At the moment there is no way to opt out of that dependency.
 
 ### Dependencies
+
 ```scala
 libraryDependencies += "com.indoorvivants" %%  "toml" % "<version>"  // JVM
 libraryDependencies += "com.indoorvivants" %%% "toml" % "<version>"  // Scala.js, Scala Native
 ```
 
 ## Examples
+
 ### AST parsing
-```scala
+
+```scala mdoc
 
 val table =
   """
@@ -76,18 +79,17 @@ toml.Toml.parse(table)
 // ) 
 ```
 
-### Codec derivation (Scala 2 only)
-
-**Currently only supported on Scala 2**
+### Codec derivation 
 
 The following import is needed:
 
-```scala
+```scala mdoc
 import toml.derivation.auto._
 ```
 
 #### Tables
-```scala
+
+```scala mdoc:nest
 case class Table(b: Int)
 case class Root(a: Int, table: Table)
 
@@ -98,11 +100,11 @@ val table =
     |b = 2
   """.stripMargin
 
-Toml.parseAs[Root](table)  // Right(Root(1, Table(2)))
+toml.Toml.parseAs[Root](table)  // Right(Root(1, Table(2)))
 ```
 
 #### Table lists
-```scala
+```scala mdoc:nest
 val tableList =
   """
     |points = [ { x = 1, y = 2, z = 3 },
@@ -113,7 +115,7 @@ val tableList =
 case class Point(x: Int, y: Int, z: Int)
 case class Root(points: List[Point])
 
-Toml.parseAs[Root](tableList)
+toml.Toml.parseAs[Root](tableList)
 // Right(Root(List(
 //   Point(1, 2, 3),
 //   Point(7, 8, 9),
@@ -129,15 +131,19 @@ points = [ [ 1, 2, 3 ],
 ```
 
 #### Optional values
-```scala
+
+```scala mdoc:nest
 case class Table(b: Int)
 case class Root(a: Int, table: Option[Table])
 
-Toml.parseAs[Root]("a = 1")  // Right(Root(1, None))
+toml.Toml.parseAs[Root]("a = 1")  // Right(Root(1, None))
 ```
 
 #### Define custom codecs
-```scala
+
+```scala mdoc:nest
+import toml.*
+
 case class Currency(name: String)
 implicit val currencyCodec: Codec[Currency] = Codec {
   case (Value.Str(value), _, _) =>
@@ -151,18 +157,20 @@ implicit val currencyCodec: Codec[Currency] = Codec {
 }
 
 case class Root(currency: Currency)
-Toml.parseAs[Root]("""currency = "BTC"""")  // Right(Root(Currency(BTC)))
+toml.Toml.parseAs[Root]("""currency = "BTC"""")  // Right(Root(Currency(BTC)))
 ```
 
 #### Generate TOML
-```scala
+```scala mdoc:reset
+import toml.*, Node.*, Value.*
+
 val root = Root(List(Pair("scalaDeps", Arr(List(
   Arr(List(Str("io.monix"), Str("minitest"), Str("2.2.2"))),
   Arr(List(Str("org.scalacheck"), Str("scalacheck"), Str("1.14.0"))),
   Arr(List(Str("org.scalatest"), Str("scalatest"), Str("3.2.0-SNAP10")))
 )))))
 
-Toml.generate(root)
+toml.Toml.generate(root)
 ```
 
 Returns:
@@ -182,7 +190,7 @@ toml-scala supports the following language extensions which are disabled by defa
 
 To enable them, pass in a set of extensions to the `parse()` or `parseAs()` function as a second argument:
 
-```scala
+```scala mdoc
 toml.Toml.parse("""key = {
   a = 23,
   b = 42,
@@ -190,7 +198,7 @@ toml.Toml.parse("""key = {
 ```
 
 ## Links
-* [ScalaDoc](https://www.javadoc.io/doc/com.indoorvivants/toml-scala_2.13/)
+* [ScalaDoc](https://www.javadoc.io/doc/com.indoorvivants/toml_3/)
 
 ## Licence
 toml-scala is licensed under the terms of the Mozilla Public Licence v2.0.
