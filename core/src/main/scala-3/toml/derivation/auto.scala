@@ -1,6 +1,5 @@
 package toml
 package derivation
-import shapeless3.deriving.*
 import toml.Codec.Defaults
 
 object auto:

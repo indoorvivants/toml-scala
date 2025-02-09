@@ -1,9 +1,9 @@
 package toml
 
-import java.time._
+import java.time.*
 
-import fastparse._
-import fastparse.NoWhitespace._
+import fastparse.*
+import fastparse.NoWhitespace.*
 
 private[toml] trait PlatformRules { this: Rules =>
   private val TenPowers =

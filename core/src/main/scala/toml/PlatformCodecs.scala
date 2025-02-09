@@ -1,6 +1,9 @@
 package toml
 
-import java.time.{LocalDateTime, LocalTime, LocalDate, OffsetDateTime}
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.OffsetDateTime
 
 private[toml] trait PlatformCodecs {
   implicit val localDateCodec: Codec[LocalDate] = Codec {

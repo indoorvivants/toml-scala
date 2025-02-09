@@ -1,7 +1,8 @@
 package toml
 
-import fastparse._
-import NoWhitespace._
+import fastparse.*
+
+import NoWhitespace.*
 
 private[toml] case class NamedFunction[T, V](f: T => V, name: String)
     extends (T => V) {

@@ -1,7 +1,6 @@
 package toml
 
 import toml.derivation.DefaultParams
-import shapeless3.deriving.K0.ProductGeneric
 private[toml] trait TomlVersionSpecific:
   self: Toml.type =>
   class CodecHelperGeneric[T]:
